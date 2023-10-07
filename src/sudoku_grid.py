@@ -1,32 +1,31 @@
 from sys import int_info
-from sudoku_grid_interface import SudokuGridInterface, VectorInterface, CellInterface, SubGridInterface
+from sudoku_grid_interface import SudokuGridInterface, CellsBoxInterface, CellInterface, SubGridInterface
 import itertools
+# from typeguard import typechecked
 
 
-class Vector(VectorInterface):
+class CellsBox(CellsBoxInterface):
 
-    def __init__(self, cells: list()) -> None:
-        self.cells = cells
+    def __init__(self, cells: set()) -> None:
+        self.cells = set(cells)
 
-    def get_ith(self, i: int) -> CellInterface:
-        return self.cells[i]
+    def __iter__(self):
+        return iter(self.cells)
 
     def is_valid(self) -> bool:
-        for cell in self.cells:
-            if not cell.is_valid():
-                return False
+        return all([cell.is_valid() for cell in self.cells])
 
-        values = [cell.get_value()
-                  for cell in self.cells if cell.get_value() != 0]
-        if len(values) != len(set(values)):
-            return False
+    def is_empty(self) -> bool:
+        return len(self.cells) == 0
 
-        return True
+    # return random cell
+    def get_cell(self) -> CellInterface:
+        return list(self.cells)[0]
 
     def get_marked_values(self):
         return [cell.get_value() for cell in self.cells if cell.is_marked()]
 
-    def get_unmarked_cells(self):
+    def get_empty_cells(self):
         return [cell for cell in self.cells if cell.is_empty()]
 
     # def get_candidates(self) -> set():
@@ -36,20 +35,18 @@ class Vector(VectorInterface):
     #     return candidates
 
     def get_candidates_intersection(self) -> set():
-        candidates = set(range(1, 10))
-        for cell in self.cells:
-            candidates = candidates.intersection(cell.get_candidates())
-        return candidates
+        candidates_for_each_cell = [cell.get_candidates()
+                                    for cell in self.cells]
+        if candidates_for_each_cell == []:
+            return set()
+        return set.intersection(*candidates_for_each_cell)
 
     def get_candidates_union(self) -> set():
-        # candidates = set()
-        # for cell in self.cells:
-        #     candidates = candidates.union(cell.get_candidates())
-        # return candidates
-        candidates = [cell.get_candidates() for cell in self.cells]
-        if len(candidates) == 0:
+        candidates_for_each_cell = [cell.get_candidates()
+                                    for cell in self.cells]
+        if candidates_for_each_cell == []:
             return set()
-        return set.union(*candidates)
+        return set.union(*candidates_for_each_cell)
 
     def has_candidate(self, candidate):
         for cell in self.cells:
@@ -57,8 +54,12 @@ class Vector(VectorInterface):
                 return True
         return False
 
-    def difference(self, other: VectorInterface):
-        return [cell for cell in self.cells if cell not in other.cells]
+    def union(self, other: CellsBoxInterface):
+        tt = other.get_candidates_union()
+        return CellsBox(self.cells.union(tt))
+
+    def difference(self, other: CellsBoxInterface):
+        return CellsBox(self.cells.difference(other.cells))
 
 
 class Cell(CellInterface):
@@ -170,21 +171,21 @@ class SubGrid(SubGridInterface):
         return [cell.get_value() for cell in self.flatten() if cell.is_marked()]
 
     def get_other_empty_cells_in_subgrid(self, cells_to_exclude: list):
-        return Vector([cell for cell in self.flatten() if cell.is_empty() and cell not in cells_to_exclude])
+        return CellsBox([cell for cell in self.flatten() if cell.is_empty() and cell not in cells_to_exclude])
 
     def get_rows(self):
-        return [Vector(row) for row in self.grid]
+        return [CellsBox(row) for row in self.grid]
 
     def get_columns(self):
         transposed_grid = list(zip(*self.grid))
-        return [Vector(column) for column in transposed_grid]
+        return [CellsBox(column) for column in transposed_grid]
 
     def get_empty_rows(self):
-        return [Vector(row) for row in self.grid]
+        return [CellsBox(row) for row in self.grid]
 
     def get_empty_cells_on_columns(self):
         transposed_grid = list(zip(*self.grid))
-        return [Vector(column) for column in transposed_grid]
+        return [CellsBox(column) for column in transposed_grid]
 
 
 class SudokuGrid(SudokuGridInterface):
@@ -249,50 +250,53 @@ class SudokuGrid(SudokuGridInterface):
             cell.get_candidates().difference(excluded_values_from_same_row_column_grid))
 
     def update_candidates_in_cell_row_column_grid(self, cell):
-        cells_to_update = set(list(self.get_other_cells_on_column_by_cell(cell).cells +
-                                   self.get_other_cells_on_row_by_cell(cell).cells +
-                                   self.get_other_cells_in_grid_by_cell(cell).cells))
+        cells_to_update = self.get_other_cells_on_column_by_cell(cell).union(CellsBox(
+            self.get_other_cells_on_row_by_cell(cell),
+            self.get_other_cells_in_grid_by_cell(cell)))
+        # cells_to_update = set(list(self.get_other_cells_on_column_by_cell(cell).cells +
+        #                            self.get_other_cells_on_row_by_cell(cell).cells +
+        #                            self.get_other_cells_in_grid_by_cell(cell).cells))
         candidate_to_remove = cell.get_value()
         for cell in cells_to_update:
             cell.remove_candidate(candidate_to_remove)
 
     def get_other_cells_on_row(self, row: int, col: int):
-        return Vector([cell for cell in self.grid[row] if cell.get_position() != (row, col)])
+        return CellsBox([cell for cell in self.grid[row] if cell.get_position() != (row, col)])
 
     def get_rows(self):
-        return [Vector(row) for row in self.grid]
+        return [CellsBox(row) for row in self.grid]
 
     def get_columns(self):
         transposed_grid = list(zip(*self.grid))
-        return [Vector(column) for column in transposed_grid]
+        return [CellsBox(column) for column in transposed_grid]
 
     def get_cells_on_row(self, row: int):
-        return Vector(self.grid[row])
+        return CellsBox(self.grid[row])
 
     def get_empty_cells_on_row(self, row: int):
-        return Vector([cell for cell in self.grid[row] if cell.is_empty()])
+        return CellsBox([cell for cell in self.grid[row] if cell.is_empty()])
 
     def get_other_cells_on_column(self, row: int, col: int):
-        return Vector([vector[col] for vector in self.grid if vector[col].get_position() != (row, col)])
+        return CellsBox([vector[col] for vector in self.grid if vector[col].get_position() != (row, col)])
 
     def get_cells_on_column(self, col: int):
-        return Vector([row[col] for row in self.grid if row[col].get_col() == col])
+        return CellsBox([row[col] for row in self.grid if row[col].get_col() == col])
 
     def get_empty_cells_on_col(self, col: int):
-        return Vector([row[col] for row in self.grid if row[col].get_col() == col and row[col].is_empty()])
+        return CellsBox([row[col] for row in self.grid if row[col].get_col() == col and row[col].is_empty()])
 
     def get_other_cells_in_grid(self, row: int, col: int):
-        return Vector([cell for cell in self.get_sub_grid(
+        return CellsBox([cell for cell in self.get_sub_grid(
             row, col).flatten() if cell.get_position() != (row, col)])
 
     def get_other_cells_on_row_by_cell(self, main_cell: Cell):
-        return Vector([cell for cell in self.grid[main_cell.get_row()] if cell.get_position() != main_cell.get_position()])
+        return CellsBox([cell for cell in self.grid[main_cell.get_row()] if cell.get_position() != main_cell.get_position()])
 
     def get_other_cells_on_column_by_cell(self, main_cell: Cell):
-        return Vector([vector[main_cell.get_col()] for vector in self.grid if vector[main_cell.get_col()].get_position() != main_cell.get_position()])
+        return CellsBox([vector[main_cell.get_col()] for vector in self.grid if vector[main_cell.get_col()].get_position() != main_cell.get_position()])
 
     def get_other_cells_in_grid_by_cell(self, main_cell: Cell):
-        return Vector([cell for cell in self.get_sub_grid(
+        return CellsBox([cell for cell in self.get_sub_grid(
             main_cell.get_row(), main_cell.get_col()).flatten() if cell.get_position() != main_cell.get_position()])
 
     def get_cell(self, row: int, col: int) -> CellInterface:

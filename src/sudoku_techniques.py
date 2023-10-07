@@ -1,6 +1,6 @@
 from job_interface import JobInterface
-from sudoku_grid_interface import SudokuGridInterface, SubGridInterface, VectorInterface
-from sudoku_grid import Vector
+from sudoku_grid_interface import SudokuGridInterface, SubGridInterface, CellsBoxInterface
+from sudoku_grid import CellsBox
 
 
 # class Result():
@@ -65,19 +65,19 @@ class IsolateCandidatesInSubgridTechnique(JobInterface):
         for subgrid in grid.get_all_sub_grids():
 
             for row in subgrid.get_rows():
-                empty_cells_in_subrow = Vector(
+                empty_cells_in_subrow = CellsBox(
                     [cell for cell in row.cells if cell.is_empty()])
 
                 if len(empty_cells_in_subrow.cells) == 0:
                     continue
 
-                row_index = empty_cells_in_subrow.cells[0].get_row()
+                row_index = empty_cells_in_subrow.get_cell().get_row()
 
                 empty_cells_on_same_row_in_other_subgrids = grid.get_empty_cells_on_row(
                     row_index).difference(empty_cells_in_subrow)
 
                 unique_candidates_in_subrow = empty_cells_in_subrow.get_candidates_union(
-                ).difference(Vector(empty_cells_on_same_row_in_other_subgrids).get_candidates_union())
+                ).difference(empty_cells_on_same_row_in_other_subgrids.get_candidates_union())
 
                 if len(unique_candidates_in_subrow) == 0:
                     continue
@@ -91,19 +91,19 @@ class IsolateCandidatesInSubgridTechnique(JobInterface):
             # same logic on columns
             for column in subgrid.get_columns():
 
-                empty_cells_in_subcolumn = Vector(
+                empty_cells_in_subcolumn = CellsBox(
                     [cell for cell in column.cells if cell.is_empty()])
 
                 if len(empty_cells_in_subcolumn.cells) == 0:
                     continue
 
-                col_index = empty_cells_in_subcolumn.cells[0].get_col()
+                col_index = empty_cells_in_subcolumn.get_cell().get_col()
 
                 empty_cells_on_same_column_in_other_subgrids = grid.get_empty_cells_on_col(
                     col_index).difference(empty_cells_in_subcolumn)
 
                 unique_candidates_in_subcol = empty_cells_in_subcolumn.get_candidates_union(
-                ).difference(Vector(empty_cells_on_same_column_in_other_subgrids).get_candidates_union())
+                ).difference(CellsBox(empty_cells_on_same_column_in_other_subgrids).get_candidates_union())
 
                 if len(unique_candidates_in_subcol) == 0:
                     continue
@@ -127,18 +127,18 @@ class IsolateCandidatesInRowsAndColumnsTechnique(JobInterface):
         for subgrid in grid.get_all_sub_grids():
 
             for row in subgrid.get_rows():
-                empty_cells_in_subrow = Vector(
+                empty_cells_in_subrow = CellsBox(
                     [cell for cell in row.cells if cell.is_empty()])
 
                 if len(empty_cells_in_subrow.cells) == 0:
                     continue
 
-                row_index = empty_cells_in_subrow.cells[0].get_row()
+                row_index = empty_cells_in_subrow.get_cell().get_row()
 
                 other_empty_cells_in_subgrid = subgrid.get_other_empty_cells_in_subgrid(
                     empty_cells_in_subrow.cells)
 
-                empty_cells_on_same_row_in_other_subgrids = Vector(grid.get_empty_cells_on_row(
+                empty_cells_on_same_row_in_other_subgrids = CellsBox(grid.get_empty_cells_on_row(
                     row_index).difference(empty_cells_in_subrow))
 
                 unique_candidates_in_subrow = empty_cells_in_subrow.get_candidates_union(
@@ -152,18 +152,18 @@ class IsolateCandidatesInRowsAndColumnsTechnique(JobInterface):
 
             # same logic on columns
             for column in subgrid.get_columns():
-                empty_cells_in_subcol = Vector(
+                empty_cells_in_subcol = CellsBox(
                     [cell for cell in column.cells if cell.is_empty()])
 
                 if len(empty_cells_in_subcol.cells) == 0:
                     continue
 
-                col_index = empty_cells_in_subcol.cells[0].get_col()
+                col_index = empty_cells_in_subcol.get_cell().get_col()
 
                 other_empty_cells_in_subgrid = subgrid.get_other_empty_cells_in_subgrid(
                     empty_cells_in_subcol.cells)
 
-                empty_cells_on_same_col_in_other_subgrids = Vector(grid.get_empty_cells_on_col(
+                empty_cells_on_same_col_in_other_subgrids = CellsBox(grid.get_empty_cells_on_col(
                     col_index).difference(empty_cells_in_subcol))
 
                 unique_candidates_in_subcol = empty_cells_in_subcol.get_candidates_union(
@@ -212,7 +212,7 @@ class DoubleCoupleAlignedTechnique(JobInterface):
         for row in grid.get_rows():
 
             cells_with_2_candidates = [
-                cell for cell in row.get_unmarked_cells() if len(cell.get_candidates()) == 2]
+                cell for cell in row.get_empty_cells() if len(cell.get_candidates()) == 2]
 
             for cell_1 in cells_with_2_candidates:
                 for cell_2 in cells_with_2_candidates:
@@ -220,13 +220,13 @@ class DoubleCoupleAlignedTechnique(JobInterface):
                         continue
 
                     common_candidates = cell_1.get_candidates()
-                    for cell_on_same_row in row.difference(Vector([cell_1, cell_2])):
+                    for cell_on_same_row in row.difference(CellsBox([cell_1, cell_2])):
                         cell_on_same_row.remove_candidates(common_candidates)
 
         for col in grid.get_columns():
 
             cells_with_2_candidates = [
-                cell for cell in col.get_unmarked_cells() if len(cell.get_candidates()) == 2]
+                cell for cell in col.get_empty_cells() if len(cell.get_candidates()) == 2]
 
             for cell_1 in cells_with_2_candidates:
                 for cell_2 in cells_with_2_candidates:
@@ -234,7 +234,7 @@ class DoubleCoupleAlignedTechnique(JobInterface):
                         continue
 
                     common_candidates = cell_1.get_candidates()
-                    for cell_on_same_col in col.difference(Vector([cell_1, cell_2])):
+                    for cell_on_same_col in col.difference(CellsBox([cell_1, cell_2])):
                         cell_on_same_col.remove_candidates(common_candidates)
         return grid
 
@@ -252,17 +252,17 @@ class ThreeCandidatesInThreeCellsTechnique(JobInterface):
         for row in grid.get_rows():
 
             empty_cells_in_row = [
-                cell for cell in row.get_unmarked_cells()]
+                cell for cell in row.get_empty_cells()]
 
             for cell_1 in empty_cells_in_row:
                 for cell_2 in empty_cells_in_row:
                     for cell_3 in empty_cells_in_row:
                         if len({cell_1, cell_2, cell_3}) != 3:  # check distinct cells
                             continue
-                        triple_candidates_union = Vector(
+                        triple_candidates_union = CellsBox(
                             [cell_1, cell_2, cell_3]).get_candidates_union()
 
-                        other_cells_on_row_candidates = Vector(list(set(empty_cells_in_row).difference(
+                        other_cells_on_row_candidates = CellsBox(list(set(empty_cells_in_row).difference(
                             {cell_1, cell_2, cell_3}))).get_candidates_union()
 
                         if len(triple_candidates_union.difference(other_cells_on_row_candidates)) == 3:

@@ -1,10 +1,7 @@
 from abc import ABC, abstractmethod
 
 
-class VectorInterface(ABC):
-    @abstractmethod
-    def get_ith(self, i: int):  # -> CellInterface:
-        pass
+class CellsBoxInterface(ABC):
 
     @abstractmethod
     def is_valid(self) -> bool:
@@ -68,11 +65,11 @@ class SudokuGridInterface(ABC):
         pass
 
     # @abstractmethod
-    # def get_row_ith(self, row: int) -> VectorInterface:
+    # def get_row_ith(self, row: int) -> CellsBoxInterface:
     #     pass
 
     # @abstractmethod
-    # def get_col_ith(self, col: int) -> VectorInterface:
+    # def get_col_ith(self, col: int) -> CellsBoxInterface:
     #     pass
 
     @abstractmethod
