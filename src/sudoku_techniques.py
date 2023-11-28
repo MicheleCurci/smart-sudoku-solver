@@ -259,6 +259,7 @@ class ThreeCandidatesInThreeCellsTechnique(JobInterface):
                     for cell_3 in empty_cells_in_row:
                         if len({cell_1, cell_2, cell_3}) != 3:  # check distinct cells
                             continue
+
                         triple_candidates_union = CellsBox(
                             [cell_1, cell_2, cell_3]).get_candidates_union()
 
@@ -269,7 +270,7 @@ class ThreeCandidatesInThreeCellsTechnique(JobInterface):
                             for cell in [cell_1, cell_2, cell_3]:
                                 cell.remove_candidates(
                                     other_cells_on_row_candidates)
-                            # return grid ...to speed up because it's rare
+                            return grid #...to speed up because it rarely happens
 
         # COLUMN...
         # GRID...

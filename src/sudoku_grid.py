@@ -250,12 +250,9 @@ class SudokuGrid(SudokuGridInterface):
             cell.get_candidates().difference(excluded_values_from_same_row_column_grid))
 
     def update_candidates_in_cell_row_column_grid(self, cell):
-        cells_to_update = self.get_other_cells_on_column_by_cell(cell).union(CellsBox(
-            self.get_other_cells_on_row_by_cell(cell),
-            self.get_other_cells_in_grid_by_cell(cell)))
-        # cells_to_update = set(list(self.get_other_cells_on_column_by_cell(cell).cells +
-        #                            self.get_other_cells_on_row_by_cell(cell).cells +
-        #                            self.get_other_cells_in_grid_by_cell(cell).cells))
+        cells_to_update = set(list(self.get_other_cells_on_column_by_cell(cell).cells) +
+                                   list(self.get_other_cells_on_row_by_cell(cell).cells) +
+                                   list(self.get_other_cells_in_grid_by_cell(cell).cells))
         candidate_to_remove = cell.get_value()
         for cell in cells_to_update:
             cell.remove_candidate(candidate_to_remove)
