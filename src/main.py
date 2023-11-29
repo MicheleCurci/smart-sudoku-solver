@@ -1,6 +1,6 @@
 from cyclic_pipeline import CyclicPipeline
 from sudoku_grid import SudokuGrid
-from sudoku_techniques import SingleCandidateTechnique, IsolateCandidatesInSubgridTechnique, IsolateCandidatesInRowsAndColumnsTechnique, DoubleCoupleTechnique, DoubleCoupleAlignedTechnique, ThreeCandidatesInThreeCellsTechnique
+from sudoku_techniques import SingleCandidateTechnique, IsolateCandidatesInSquareTechnique, IsolateCandidatesInRowsAndColumnsTechnique, DoubleCoupleTechnique, DoubleCoupleAlignedTechnique, ThreeCandidatesInThreeCellsTechnique
 import time
 
 
@@ -11,7 +11,7 @@ def is_grid_filled(grid: SudokuGrid):
 def main():
 
     sudoku_cyclic_pipeline = CyclicPipeline(
-        [SingleCandidateTechnique(), IsolateCandidatesInSubgridTechnique(), IsolateCandidatesInRowsAndColumnsTechnique(), DoubleCoupleTechnique(), DoubleCoupleAlignedTechnique(), ThreeCandidatesInThreeCellsTechnique()])
+        [SingleCandidateTechnique(), IsolateCandidatesInSquareTechnique(), IsolateCandidatesInRowsAndColumnsTechnique(), DoubleCoupleTechnique(), DoubleCoupleAlignedTechnique(), ThreeCandidatesInThreeCellsTechnique()])
 
     grid = SudokuGrid(
         # 100 iterations

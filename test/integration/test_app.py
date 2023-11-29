@@ -1,6 +1,6 @@
 from unittest import TestCase
 from cyclic_pipeline import CyclicPipeline
-from sudoku_techniques import SingleCandidateTechnique, IsolateCandidatesInSubgridTechnique, IsolateCandidatesInRowsAndColumnsTechnique, DoubleCoupleTechnique, DoubleCoupleAlignedTechnique, ThreeCandidatesInThreeCellsTechnique
+from sudoku_techniques import SingleCandidateTechnique, IsolateCandidatesInSquareTechnique, IsolateCandidatesInRowsAndColumnsTechnique, DoubleCoupleTechnique, DoubleCoupleAlignedTechnique, ThreeCandidatesInThreeCellsTechnique
 from sudoku_grid import SudokuGrid
 
 
@@ -9,7 +9,7 @@ class TestCalculator(TestCase):
 
     def setUp(self):
         self.sudoku_cyclic_pipeline = CyclicPipeline(
-        [SingleCandidateTechnique(), IsolateCandidatesInSubgridTechnique(), IsolateCandidatesInRowsAndColumnsTechnique(), DoubleCoupleTechnique(), DoubleCoupleAlignedTechnique(), ThreeCandidatesInThreeCellsTechnique()])
+        [SingleCandidateTechnique(), IsolateCandidatesInSquareTechnique(), IsolateCandidatesInRowsAndColumnsTechnique(), DoubleCoupleTechnique(), DoubleCoupleAlignedTechnique(), ThreeCandidatesInThreeCellsTechnique()])
 
     def is_grid_filled(self, grid: SudokuGrid):
         return grid.is_filled()

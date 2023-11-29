@@ -1,5 +1,5 @@
 from job_interface import JobInterface
-from sudoku_grid_interface import SudokuGridInterface, SubGridInterface, CellsBoxInterface
+from sudoku_grid_interface import SudokuGridInterface, SquareInterface, CellsBoxInterface
 from sudoku_grid import CellsBox
 
 
@@ -34,7 +34,7 @@ class SingleCandidateTechnique(JobInterface):
                     grid.set_cell_value(cell, list(candidates)[0])
                     return grid
 
-                # Tecnique: Stucked candidate type 1 (+ check in subgrid)
+                # Tecnique: Stucked candidate type 1 (+ check in square)
                 cells_on_same_row = grid.get_other_cells_on_row(row, col)
                 cells_on_same_column = grid.get_other_cells_on_column(row, col)
                 cells_in_same_grid = grid.get_other_cells_in_grid(row, col)
@@ -55,16 +55,16 @@ class SingleCandidateTechnique(JobInterface):
 # Tecnique: Stucked candidate type 1
 
 
-class IsolateCandidatesInSubgridTechnique(JobInterface):
+class IsolateCandidatesInSquareTechnique(JobInterface):
 
     def __init__(self) -> None:
         pass
 
     def run(self, grid: SudokuGridInterface) -> SudokuGridInterface:
 
-        for subgrid in grid.get_all_sub_grids():
+        for square in grid.get_all_squares():
 
-            for row in subgrid.get_rows():
+            for row in square.get_rows():
                 empty_cells_in_subrow = CellsBox(
                     [cell for cell in row.cells if cell.is_empty()])
 
@@ -73,23 +73,23 @@ class IsolateCandidatesInSubgridTechnique(JobInterface):
 
                 row_index = empty_cells_in_subrow.get_cell().get_row()
 
-                empty_cells_on_same_row_in_other_subgrids = grid.get_empty_cells_on_row(
+                empty_cells_on_same_row_in_other_squares = grid.get_empty_cells_on_row(
                     row_index).difference(empty_cells_in_subrow)
 
                 unique_candidates_in_subrow = empty_cells_in_subrow.get_candidates_union(
-                ).difference(empty_cells_on_same_row_in_other_subgrids.get_candidates_union())
+                ).difference(empty_cells_on_same_row_in_other_squares.get_candidates_union())
 
                 if len(unique_candidates_in_subrow) == 0:
                     continue
 
-                other_empty_cells_in_subgrid = subgrid.get_other_empty_cells_in_subgrid(
+                other_empty_cells_in_square = square.get_other_empty_cells_in_square(
                     empty_cells_in_subrow.cells)
 
-                for cell in other_empty_cells_in_subgrid.cells:
+                for cell in other_empty_cells_in_square.cells:
                     cell.remove_candidates(unique_candidates_in_subrow)
 
             # same logic on columns
-            for column in subgrid.get_columns():
+            for column in square.get_columns():
 
                 empty_cells_in_subcolumn = CellsBox(
                     [cell for cell in column.cells if cell.is_empty()])
@@ -99,19 +99,19 @@ class IsolateCandidatesInSubgridTechnique(JobInterface):
 
                 col_index = empty_cells_in_subcolumn.get_cell().get_col()
 
-                empty_cells_on_same_column_in_other_subgrids = grid.get_empty_cells_on_col(
+                empty_cells_on_same_column_in_other_squares = grid.get_empty_cells_on_col(
                     col_index).difference(empty_cells_in_subcolumn)
 
                 unique_candidates_in_subcol = empty_cells_in_subcolumn.get_candidates_union(
-                ).difference(CellsBox(empty_cells_on_same_column_in_other_subgrids).get_candidates_union())
+                ).difference(CellsBox(empty_cells_on_same_column_in_other_squares).get_candidates_union())
 
                 if len(unique_candidates_in_subcol) == 0:
                     continue
 
-                other_empty_cells_in_subgrid = subgrid.get_other_empty_cells_in_subgrid(
+                other_empty_cells_in_square = square.get_other_empty_cells_in_square(
                     empty_cells_in_subcolumn.cells)
 
-                for cell in other_empty_cells_in_subgrid.cells:
+                for cell in other_empty_cells_in_square.cells:
                     cell.remove_candidates(unique_candidates_in_subcol)
 
         return grid
@@ -124,9 +124,9 @@ class IsolateCandidatesInRowsAndColumnsTechnique(JobInterface):
 
     def run(self, grid: SudokuGridInterface) -> SudokuGridInterface:
 
-        for subgrid in grid.get_all_sub_grids():
+        for square in grid.get_all_squares():
 
-            for row in subgrid.get_rows():
+            for row in square.get_rows():
                 empty_cells_in_subrow = CellsBox(
                     [cell for cell in row.cells if cell.is_empty()])
 
@@ -135,23 +135,23 @@ class IsolateCandidatesInRowsAndColumnsTechnique(JobInterface):
 
                 row_index = empty_cells_in_subrow.get_cell().get_row()
 
-                other_empty_cells_in_subgrid = subgrid.get_other_empty_cells_in_subgrid(
+                other_empty_cells_in_square = square.get_other_empty_cells_in_square(
                     empty_cells_in_subrow.cells)
 
-                empty_cells_on_same_row_in_other_subgrids = CellsBox(grid.get_empty_cells_on_row(
+                empty_cells_on_same_row_in_other_squares = CellsBox(grid.get_empty_cells_on_row(
                     row_index).difference(empty_cells_in_subrow))
 
                 unique_candidates_in_subrow = empty_cells_in_subrow.get_candidates_union(
-                ).difference(other_empty_cells_in_subgrid.get_candidates_union())
+                ).difference(other_empty_cells_in_square.get_candidates_union())
 
                 if len(unique_candidates_in_subrow) == 0:
                     continue
 
-                for cell in empty_cells_on_same_row_in_other_subgrids.cells:
+                for cell in empty_cells_on_same_row_in_other_squares.cells:
                     cell.remove_candidates(unique_candidates_in_subrow)
 
             # same logic on columns
-            for column in subgrid.get_columns():
+            for column in square.get_columns():
                 empty_cells_in_subcol = CellsBox(
                     [cell for cell in column.cells if cell.is_empty()])
 
@@ -160,19 +160,19 @@ class IsolateCandidatesInRowsAndColumnsTechnique(JobInterface):
 
                 col_index = empty_cells_in_subcol.get_cell().get_col()
 
-                other_empty_cells_in_subgrid = subgrid.get_other_empty_cells_in_subgrid(
+                other_empty_cells_in_square = square.get_other_empty_cells_in_square(
                     empty_cells_in_subcol.cells)
 
-                empty_cells_on_same_col_in_other_subgrids = CellsBox(grid.get_empty_cells_on_col(
+                empty_cells_on_same_col_in_other_squares = CellsBox(grid.get_empty_cells_on_col(
                     col_index).difference(empty_cells_in_subcol))
 
                 unique_candidates_in_subcol = empty_cells_in_subcol.get_candidates_union(
-                ).difference(other_empty_cells_in_subgrid.get_candidates_union())
+                ).difference(other_empty_cells_in_square.get_candidates_union())
 
                 if len(unique_candidates_in_subcol) == 0:
                     continue
 
-                for cell in empty_cells_on_same_col_in_other_subgrids.cells:
+                for cell in empty_cells_on_same_col_in_other_squares.cells:
                     cell.remove_candidates(unique_candidates_in_subcol)
 
         return grid
@@ -185,10 +185,10 @@ class DoubleCoupleTechnique(JobInterface):
 
     def run(self, grid: SudokuGridInterface) -> SudokuGridInterface:
 
-        for subgrid in grid.get_all_sub_grids():
+        for square in grid.get_all_squares():
 
             cells_with_2_candidates = [
-                cell for cell in subgrid.get_empty_cells() if len(cell.get_candidates()) == 2]
+                cell for cell in square.get_empty_cells() if len(cell.get_candidates()) == 2]
 
             for cell_1 in cells_with_2_candidates:
                 for cell_2 in cells_with_2_candidates:
@@ -196,7 +196,7 @@ class DoubleCoupleTechnique(JobInterface):
                         continue
 
                     common_candidates = cell_1.get_candidates()
-                    for sibling_cell in subgrid.get_other_empty_cells_in_subgrid([cell_1, cell_2]).cells:
+                    for sibling_cell in square.get_other_empty_cells_in_square([cell_1, cell_2]).cells:
                         sibling_cell.remove_candidates(common_candidates)
         return grid
 
@@ -245,7 +245,7 @@ class ThreeCandidatesInThreeCellsTechnique(JobInterface):
 
     def run(self, grid: SudokuGridInterface) -> SudokuGridInterface:
 
-        rcs_groups = (grid.get_rows(), grid.get_columns(), grid.get_all_sub_grids())
+        rcs_groups = (grid.get_rows(), grid.get_columns(), grid.get_all_squares())
 
         for rcs_group in rcs_groups:   
             for rcs in rcs_group:

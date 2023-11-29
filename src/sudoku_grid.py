@@ -1,5 +1,5 @@
 from sys import int_info
-from sudoku_grid_interface import SudokuGridInterface, CellsBoxInterface, CellInterface, SubGridInterface
+from sudoku_grid_interface import SudokuGridInterface, CellsBoxInterface, CellInterface, SquareInterface
 import itertools
 # from typeguard import typechecked
 
@@ -126,10 +126,10 @@ class Cell(CellInterface):
         self.candidates = self.candidates.difference(candidates)
 
 
-class SubGrid(SubGridInterface):
+class Square(SquareInterface):
 
-    def __init__(self, subgrid: list(list())) -> None:
-        self.grid = subgrid
+    def __init__(self, square: list(list())) -> None:
+        self.grid = square
 
     def get_cell(self, row: int, col: int) -> CellInterface:
         return self.grid[row][col]
@@ -150,27 +150,27 @@ class SubGrid(SubGridInterface):
         return values.sort() == list(range(1, 10))
 
     def flatten(self) -> list:
-        cells_in_subgrid = []
+        cells_in_square = []
         for row in self.grid:
-            cells_in_subgrid += row
-        return cells_in_subgrid
+            cells_in_square += row
+        return cells_in_square
 
     def get_all_cells(self) -> list:
-        cells_in_subgrid = []
+        cells_in_square = []
         for row in self.grid:
-            cells_in_subgrid += row
-        return cells_in_subgrid
+            cells_in_square += row
+        return cells_in_square
 
     def get_empty_cells(self) -> list:
-        cells_in_subgrid = []
+        cells_in_square = []
         for row in self.grid:
-            cells_in_subgrid += row
-        return [cell for cell in cells_in_subgrid if cell.is_empty()]
+            cells_in_square += row
+        return [cell for cell in cells_in_square if cell.is_empty()]
 
     def get_marked_values(self):
         return [cell.get_value() for cell in self.flatten() if cell.is_marked()]
 
-    def get_other_empty_cells_in_subgrid(self, cells_to_exclude: list):
+    def get_other_empty_cells_in_square(self, cells_to_exclude: list):
         return CellsBox([cell for cell in self.flatten() if cell.is_empty() and cell not in cells_to_exclude])
 
     def get_rows(self):
@@ -222,7 +222,7 @@ class SudokuGrid(SudokuGridInterface):
             if not self.get_col_ith(self, idx).is_valid():
                 return False
 
-            if not self.get_sub_grid(self, idx).is_valid():
+            if not self.get_square(self, idx).is_valid():
                 return False
 
         return True
@@ -283,7 +283,7 @@ class SudokuGrid(SudokuGridInterface):
         return CellsBox([row[col] for row in self.grid if row[col].get_col() == col and row[col].is_empty()])
 
     def get_other_cells_in_grid(self, row: int, col: int):
-        return CellsBox([cell for cell in self.get_sub_grid(
+        return CellsBox([cell for cell in self.get_square(
             row, col).flatten() if cell.get_position() != (row, col)])
 
     def get_other_cells_on_row_by_cell(self, main_cell: Cell):
@@ -293,7 +293,7 @@ class SudokuGrid(SudokuGridInterface):
         return CellsBox([vector[main_cell.get_col()] for vector in self.grid if vector[main_cell.get_col()].get_position() != main_cell.get_position()])
 
     def get_other_cells_in_grid_by_cell(self, main_cell: Cell):
-        return CellsBox([cell for cell in self.get_sub_grid(
+        return CellsBox([cell for cell in self.get_square(
             main_cell.get_row(), main_cell.get_col()).flatten() if cell.get_position() != main_cell.get_position()])
 
     def get_cell(self, row: int, col: int) -> CellInterface:
@@ -305,11 +305,11 @@ class SudokuGrid(SudokuGridInterface):
     def get_all_unmarked_cells(self) -> list:
         return [cell for cell in self.get_all_cells() if cell.is_empty()]
 
-    def get_sub_grid(self, row: int, col: int) -> SubGridInterface:
-        return SubGrid(subgrid=[rows[col//3*3: col//3*3+3] for rows in self.grid[row//3*3: row//3*3+3]])
+    def get_square(self, row: int, col: int) -> SquareInterface:
+        return Square(square=[rows[col//3*3: col//3*3+3] for rows in self.grid[row//3*3: row//3*3+3]])
 
-    def get_all_sub_grids(self) -> list:
-        return [self.get_sub_grid(row, col) for row in range(0, 9, 3) for col in range(0, 9, 3)]
+    def get_all_squares(self) -> list:
+        return [self.get_square(row, col) for row in range(0, 9, 3) for col in range(0, 9, 3)]
 
     def set_cell_value(self, cell: Cell, value: int):
         cell.set_value(value)
@@ -318,11 +318,11 @@ class SudokuGrid(SudokuGridInterface):
     def show(self) -> None:
         grid_draw = '-'*25
         reversed_values = list(self.decode().replace('0', ' '))[:: -1]
-        for _ in range(3):  # 3 rows of subgrids
+        for _ in range(3):  # 3 rows of squares
             for _ in range(3):  # 3 rows
                 grid_draw += '\n| '
-                for _ in range(3):  # 3 horizontal subgrids
-                    for _ in range(3):  # 3 inside subgrid
+                for _ in range(3):  # 3 horizontal squares
+                    for _ in range(3):  # 3 inside square
                         grid_draw += reversed_values.pop()
                         grid_draw += ' '
                     grid_draw += '| '

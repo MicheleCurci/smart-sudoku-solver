@@ -42,7 +42,7 @@ class CellInterface(ABC):
         pass
 
 
-class SubGridInterface(ABC):
+class SquareInterface(ABC):
     @abstractmethod
     # def get(self, row: int, col: int) -> CellInterface:
     #     pass
@@ -89,7 +89,7 @@ class SudokuGridInterface(ABC):
     #     pass
 
     @abstractmethod
-    def get_sub_grid(self, row: int, col: int) -> SubGridInterface:
+    def get_square(self, row: int, col: int) -> SquareInterface:
         pass
 
     @abstractmethod
