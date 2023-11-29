@@ -238,10 +238,6 @@ class DoubleCoupleAlignedTechnique(JobInterface):
                         cell_on_same_col.remove_candidates(common_candidates)
         return grid
 
-# !!! ONLY ON ROWS
-# TODO: extend algorithm for column and inner grid too
-
-
 class ThreeCandidatesInThreeCellsTechnique(JobInterface):
 
     def __init__(self) -> None:
@@ -249,30 +245,30 @@ class ThreeCandidatesInThreeCellsTechnique(JobInterface):
 
     def run(self, grid: SudokuGridInterface) -> SudokuGridInterface:
 
-        for row in grid.get_rows():
+        rcs_groups = (grid.get_rows(), grid.get_columns(), grid.get_all_sub_grids())
 
-            empty_cells_in_row = [
-                cell for cell in row.get_empty_cells()]
+        for rcs_group in rcs_groups:   
+            for rcs in rcs_group:
 
-            for cell_1 in empty_cells_in_row:
-                for cell_2 in empty_cells_in_row:
-                    for cell_3 in empty_cells_in_row:
-                        if len({cell_1, cell_2, cell_3}) != 3:  # check distinct cells
-                            continue
+                empty_cells_in_rcs = [
+                    cell for cell in rcs.get_empty_cells()]
 
-                        triple_candidates_union = CellsBox(
-                            [cell_1, cell_2, cell_3]).get_candidates_union()
+                for cell_1 in empty_cells_in_rcs:
+                    for cell_2 in empty_cells_in_rcs:
+                        for cell_3 in empty_cells_in_rcs:
+                            if len({cell_1, cell_2, cell_3}) != 3:  # check distinct cells
+                                continue
 
-                        other_cells_on_row_candidates = CellsBox(list(set(empty_cells_in_row).difference(
-                            {cell_1, cell_2, cell_3}))).get_candidates_union()
+                            triple_candidates_union = CellsBox(
+                                [cell_1, cell_2, cell_3]).get_candidates_union()
 
-                        if len(triple_candidates_union.difference(other_cells_on_row_candidates)) == 3:
-                            for cell in [cell_1, cell_2, cell_3]:
-                                cell.remove_candidates(
-                                    other_cells_on_row_candidates)
-                            return grid #...to speed up because it rarely happens
+                            candidates_in_other_cells_in_rcs = CellsBox(list(set(empty_cells_in_rcs).difference(
+                                {cell_1, cell_2, cell_3}))).get_candidates_union()
 
-        # COLUMN...
-        # GRID...
+                            if len(triple_candidates_union.difference(candidates_in_other_cells_in_rcs)) == 3:
+                                for cell in [cell_1, cell_2, cell_3]:
+                                    cell.remove_candidates(
+                                        candidates_in_other_cells_in_rcs)
+                                return grid #...to speed up because it rarely happens
 
         return grid

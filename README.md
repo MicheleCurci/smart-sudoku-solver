@@ -11,3 +11,11 @@ Set-ExecutionPolicy Unrestricted -Scope Process
 .\Scripts\Activate.ps1
 # Deactivate virtualenv
 deactivate
+
+Glossary:
+rcs = row or column or square
+
+Run tests:
+
+cd src
+ python -m unittest discover -s ..\test
