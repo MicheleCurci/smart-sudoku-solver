@@ -15,7 +15,11 @@ deactivate
 Glossary:
 rcs = row or column or square
 
-Run tests:
-
+# Run tests:
 cd src
  python -m unittest discover -s ..\test
+
+
+# Coverage:
+coverage run -m unittest discover -s ..\test
+coverage report -m

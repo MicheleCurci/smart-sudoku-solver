@@ -34,10 +34,5 @@ def main():
     exec_time = (et - st) * 1000
     print('Execution time:', exec_time, 'ms')
 
-    # for cell in grid.get_all_unmarked_cells():
-    #     print("-- cell " + str(cell.get_position()) +
-    #           " " + str(cell.get_candidates()))
-
-
 if __name__ == "__main__":
     main()
