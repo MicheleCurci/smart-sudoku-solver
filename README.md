@@ -17,9 +17,9 @@ rcs = row or column or square
 
 # Run tests:
 cd src
- python -m unittest discover -s ..\test
+python -m unittest discover -s ../test
 
 
 # Coverage:
-coverage run -m unittest discover -s ..\test
+coverage run -m unittest discover -s ../test
 coverage report -m

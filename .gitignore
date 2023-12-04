@@ -54,3 +54,6 @@ pyvenv.cfg
 
 # mkdocs documentation
 /site
+
+# other
+Include/
