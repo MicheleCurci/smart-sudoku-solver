@@ -11,10 +11,11 @@ A = TypeVar("A")  # the variable name must coincide with the string
 
 class CyclicPipeline():
 
-    # TODO: add max iterations
-    def __init__(self, jobs: list[JobInterface] = []) -> None:
+
+    def __init__(self, jobs: list[JobInterface] = [], max_iterations = 1000) -> None:
         self.jobs: list = jobs
         self.head: int = 0 if len(jobs) > 0 else None
+        self.max_iterations = max_iterations
 
     def add_job(self, job: JobInterface) -> None:
         self.jobs.append(job)
@@ -27,18 +28,11 @@ class CyclicPipeline():
         iteration_input = None
         num_iterations = 0
 
-        while 1:
+        while num_iterations < self.max_iterations:
             if self.head == 0:
                 iteration_input = deepcopy(input)
 
-            # t0 = time.time()
             output = self._run_next_job(input)
-            # t1 = time.time()
-            # exec_time = (t1 - t0) * 1000
-            # if exec_time > 5:
-            #     print("#" + str(num_iterations) + "-> " +
-            #           self.jobs[self.head].__class__.__name__ + ':', str(exec_time), 'ms')
-
             num_iterations += 1
 
             # compare if input has changed after a complete pipeline iteration
