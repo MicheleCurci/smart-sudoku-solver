@@ -1,17 +1,5 @@
 from abc import ABC, abstractmethod, abstractproperty
 
-
-class CellGroupInterface(ABC):
-
-    @abstractmethod
-    def get_cells(self):
-        pass
-
-    @abstractmethod
-    def is_valid(self) -> bool:
-        pass
-
-
 class CellInterface(ABC):
     @abstractmethod
     def get_value(self) -> int:
@@ -49,6 +37,15 @@ class CellInterface(ABC):
     def set_candidates(self, candidates: set) -> None:
         pass
 
+class CellGroupInterface(ABC):
+
+    @abstractmethod
+    def get_cells(self) -> set[CellInterface]:
+        pass
+
+    @abstractmethod
+    def is_valid(self) -> bool:
+        pass
 
 class SquareInterface(ABC):
     @abstractmethod
@@ -58,6 +55,9 @@ class SquareInterface(ABC):
     def is_valid(self) -> bool:
         pass
 
+    @abstractmethod
+    def flatten() -> set[CellInterface]:
+        pass
 
 class GridInterface(ABC):
     @abstractmethod

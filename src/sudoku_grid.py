@@ -61,7 +61,7 @@ class CellGroup(CellGroupInterface):
     #     return CellGroup(self.cells.union(tt))
 
     def difference(self, other: CellGroupInterface):
-        return CellGroup(self.cells.difference(other.cells))
+        return CellGroup(self.cells.difference(other.get_cells()))
 
 
 class Cell(CellInterface):
@@ -258,10 +258,10 @@ class Grid(GridInterface):
             cell.remove_candidate(candidate_to_remove)
 
     def get_other_cells_on_row(self, row: int, col: int):
-        return CellGroup([cell for cell in self.grid[row] if cell.get_position() != (row, col)])
+        return CellGroup({cell for cell in self.grid[row] if cell.get_position() != (row, col)})
 
     def get_rows(self):
-        return [CellGroup(row) for row in self.grid]
+        return {CellGroup(set(row)) for row in self.grid}
 
     def get_columns(self):
         transposed_grid = list(zip(*self.grid))
@@ -271,30 +271,30 @@ class Grid(GridInterface):
     #     return CellGroup(self.grid[row])
 
     def get_empty_cells_on_row(self, row: int):
-        return CellGroup([cell for cell in self.grid[row] if cell.is_empty()])
+        return CellGroup({cell for cell in self.grid[row] if cell.is_empty()})
 
     def get_other_cells_on_column(self, row: int, col: int):
-        return CellGroup([vector[col] for vector in self.grid if vector[col].get_position() != (row, col)])
+        return CellGroup({vector[col] for vector in self.grid if vector[col].get_position() != (row, col)})
 
     # def get_cells_on_column(self, col: int):
     #     return CellGroup([row[col] for row in self.grid if row[col].get_col() == col])
 
     def get_empty_cells_on_col(self, col: int):
-        return CellGroup([row[col] for row in self.grid if row[col].get_col() == col and row[col].is_empty()])
+        return CellGroup({row[col] for row in self.grid if row[col].get_col() == col and row[col].is_empty()})
 
     def get_other_cells_in_grid(self, row: int, col: int):
-        return CellGroup([cell for cell in self.get_square(
-            row, col).flatten() if cell.get_position() != (row, col)])
+        return CellGroup({cell for cell in self.get_square(
+            row, col).flatten() if cell.get_position() != (row, col)})
 
     def get_other_cells_on_row_by_cell(self, main_cell: Cell):
-        return CellGroup([cell for cell in self.grid[main_cell.get_row()] if cell.get_position() != main_cell.get_position()])
+        return CellGroup({cell for cell in self.grid[main_cell.get_row()] if cell.get_position() != main_cell.get_position()})
 
     def get_other_cells_on_column_by_cell(self, main_cell: Cell):
-        return CellGroup([vector[main_cell.get_col()] for vector in self.grid if vector[main_cell.get_col()].get_position() != main_cell.get_position()])
+        return CellGroup({vector[main_cell.get_col()] for vector in self.grid if vector[main_cell.get_col()].get_position() != main_cell.get_position()})
 
     def get_other_cells_in_grid_by_cell(self, main_cell: Cell):
-        return CellGroup([cell for cell in self.get_square(
-            main_cell.get_row(), main_cell.get_col()).flatten() if cell.get_position() != main_cell.get_position()])
+        return CellGroup({cell for cell in self.get_square(
+            main_cell.get_row(), main_cell.get_col()).flatten() if cell.get_position() != main_cell.get_position()})
 
     def get_cell(self, row: int, col: int) -> CellInterface:
         return self.grid[row][col]
