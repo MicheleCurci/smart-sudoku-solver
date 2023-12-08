@@ -1,10 +1,10 @@
 from job_interface import JobInterface
-from sudoku_grid_interface import SudokuGridInterface, SquareInterface, CellsBoxInterface
-from sudoku_grid import CellsBox
+from sudoku_grid_interface import GridInterface
+from sudoku_grid import CellGroup
 
 
 # class Result():
-#     def __init__(self, grid: SudokuGridInterface, has_marked_in_last_run: bool) -> None:
+#     def __init__(self, grid: GridInterface, has_marked_in_last_run: bool) -> None:
 #         self.grid = grid
 #         self.has_marked_in_last_run = has_marked_in_last_run
 
@@ -17,7 +17,7 @@ class SingleCandidateTechnique(JobInterface):
     def __init__(self) -> None:
         pass
 
-    def run(self, grid: SudokuGridInterface) -> SudokuGridInterface:
+    def run(self, grid: GridInterface) -> GridInterface:
         # mark cells with unique candidates
         # TODO: replace with get_all_cells()
         for row in range(0, 9):
@@ -60,12 +60,12 @@ class IsolateCandidatesInSquareTechnique(JobInterface):
     def __init__(self) -> None:
         pass
 
-    def run(self, grid: SudokuGridInterface) -> SudokuGridInterface:
+    def run(self, grid: GridInterface) -> GridInterface:
 
         for square in grid.get_all_squares():
 
             for row in square.get_rows():
-                empty_cells_in_subrow = CellsBox(
+                empty_cells_in_subrow = CellGroup(
                     [cell for cell in row.cells if cell.is_empty()])
 
                 if len(empty_cells_in_subrow.cells) == 0:
@@ -91,7 +91,7 @@ class IsolateCandidatesInSquareTechnique(JobInterface):
             # same logic on columns
             for column in square.get_columns():
 
-                empty_cells_in_subcolumn = CellsBox(
+                empty_cells_in_subcolumn = CellGroup(
                     [cell for cell in column.cells if cell.is_empty()])
 
                 if len(empty_cells_in_subcolumn.cells) == 0:
@@ -103,7 +103,7 @@ class IsolateCandidatesInSquareTechnique(JobInterface):
                     col_index).difference(empty_cells_in_subcolumn)
 
                 unique_candidates_in_subcol = empty_cells_in_subcolumn.get_candidates_union(
-                ).difference(CellsBox(empty_cells_on_same_column_in_other_squares).get_candidates_union())
+                ).difference(CellGroup(empty_cells_on_same_column_in_other_squares).get_candidates_union())
 
                 if len(unique_candidates_in_subcol) == 0:
                     continue
@@ -122,12 +122,12 @@ class IsolateCandidatesInRowsAndColumnsTechnique(JobInterface):
     def __init__(self) -> None:
         pass
 
-    def run(self, grid: SudokuGridInterface) -> SudokuGridInterface:
+    def run(self, grid: GridInterface) -> GridInterface:
 
         for square in grid.get_all_squares():
 
             for row in square.get_rows():
-                empty_cells_in_subrow = CellsBox(
+                empty_cells_in_subrow = CellGroup(
                     [cell for cell in row.cells if cell.is_empty()])
 
                 if len(empty_cells_in_subrow.cells) == 0:
@@ -138,7 +138,7 @@ class IsolateCandidatesInRowsAndColumnsTechnique(JobInterface):
                 other_empty_cells_in_square = square.get_other_empty_cells_in_square(
                     empty_cells_in_subrow.cells)
 
-                empty_cells_on_same_row_in_other_squares = CellsBox(grid.get_empty_cells_on_row(
+                empty_cells_on_same_row_in_other_squares = CellGroup(grid.get_empty_cells_on_row(
                     row_index).difference(empty_cells_in_subrow))
 
                 unique_candidates_in_subrow = empty_cells_in_subrow.get_candidates_union(
@@ -152,7 +152,7 @@ class IsolateCandidatesInRowsAndColumnsTechnique(JobInterface):
 
             # same logic on columns
             for column in square.get_columns():
-                empty_cells_in_subcol = CellsBox(
+                empty_cells_in_subcol = CellGroup(
                     [cell for cell in column.cells if cell.is_empty()])
 
                 if len(empty_cells_in_subcol.cells) == 0:
@@ -163,7 +163,7 @@ class IsolateCandidatesInRowsAndColumnsTechnique(JobInterface):
                 other_empty_cells_in_square = square.get_other_empty_cells_in_square(
                     empty_cells_in_subcol.cells)
 
-                empty_cells_on_same_col_in_other_squares = CellsBox(grid.get_empty_cells_on_col(
+                empty_cells_on_same_col_in_other_squares = CellGroup(grid.get_empty_cells_on_col(
                     col_index).difference(empty_cells_in_subcol))
 
                 unique_candidates_in_subcol = empty_cells_in_subcol.get_candidates_union(
@@ -183,7 +183,7 @@ class DoubleCoupleTechnique(JobInterface):
     def __init__(self) -> None:
         pass
 
-    def run(self, grid: SudokuGridInterface) -> SudokuGridInterface:
+    def run(self, grid: GridInterface) -> GridInterface:
 
         for square in grid.get_all_squares():
 
@@ -207,7 +207,7 @@ class DoubleCoupleAlignedTechnique(JobInterface):
     def __init__(self) -> None:
         pass
 
-    def run(self, grid: SudokuGridInterface) -> SudokuGridInterface:
+    def run(self, grid: GridInterface) -> GridInterface:
 
         for row in grid.get_rows():
 
@@ -220,7 +220,7 @@ class DoubleCoupleAlignedTechnique(JobInterface):
                         continue
 
                     common_candidates = cell_1.get_candidates()
-                    for cell_on_same_row in row.difference(CellsBox([cell_1, cell_2])):
+                    for cell_on_same_row in row.difference(CellGroup([cell_1, cell_2])):
                         cell_on_same_row.remove_candidates(common_candidates)
 
         for col in grid.get_columns():
@@ -234,7 +234,7 @@ class DoubleCoupleAlignedTechnique(JobInterface):
                         continue
 
                     common_candidates = cell_1.get_candidates()
-                    for cell_on_same_col in col.difference(CellsBox([cell_1, cell_2])):
+                    for cell_on_same_col in col.difference(CellGroup([cell_1, cell_2])):
                         cell_on_same_col.remove_candidates(common_candidates)
         return grid
 
@@ -243,7 +243,7 @@ class ThreeCandidatesInThreeCellsTechnique(JobInterface):
     def __init__(self) -> None:
         pass
 
-    def run(self, grid: SudokuGridInterface) -> SudokuGridInterface:
+    def run(self, grid: GridInterface) -> GridInterface:
 
         rcs_groups = (grid.get_rows(), grid.get_columns(), grid.get_all_squares())
 
@@ -259,10 +259,10 @@ class ThreeCandidatesInThreeCellsTechnique(JobInterface):
                             if len({cell_1, cell_2, cell_3}) != 3:  # check distinct cells
                                 continue
 
-                            triple_candidates_union = CellsBox(
+                            triple_candidates_union = CellGroup(
                                 [cell_1, cell_2, cell_3]).get_candidates_union()
 
-                            candidates_in_other_cells_in_rcs = CellsBox(list(set(empty_cells_in_rcs).difference(
+                            candidates_in_other_cells_in_rcs = CellGroup(list(set(empty_cells_in_rcs).difference(
                                 {cell_1, cell_2, cell_3}))).get_candidates_union()
 
                             if len(triple_candidates_union.difference(candidates_in_other_cells_in_rcs)) == 3:

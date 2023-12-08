@@ -14,6 +14,8 @@ deactivate
 
 Glossary:
 rcs = row or column or square
+square = 3v3
+grid = 9x9
 
 # Run tests:
 cd src

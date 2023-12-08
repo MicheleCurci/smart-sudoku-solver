@@ -1,7 +1,11 @@
-from abc import ABC, abstractmethod
+from abc import ABC, abstractmethod, abstractproperty
 
 
-class CellsBoxInterface(ABC):
+class CellGroupInterface(ABC):
+
+    @abstractmethod
+    def get_cells(self):
+        pass
 
     @abstractmethod
     def is_valid(self) -> bool:
@@ -22,7 +26,7 @@ class CellInterface(ABC):
     #     pass
 
     @abstractmethod
-    def get_candidates(self) -> set():
+    def get_candidates(self) -> set:
         pass
 
     # @abstractmethod
@@ -38,7 +42,11 @@ class CellInterface(ABC):
     #    pass
 
     @abstractmethod
-    def set_candidates(self, candidates: set()) -> None:
+    def is_valid(self):
+        pass
+
+    @abstractmethod
+    def set_candidates(self, candidates: set) -> None:
         pass
 
 
@@ -51,7 +59,7 @@ class SquareInterface(ABC):
         pass
 
 
-class SudokuGridInterface(ABC):
+class GridInterface(ABC):
     @abstractmethod
     def __eq__(self, other):
         pass
@@ -65,11 +73,11 @@ class SudokuGridInterface(ABC):
         pass
 
     # @abstractmethod
-    # def get_row_ith(self, row: int) -> CellsBoxInterface:
+    # def get_row_ith(self, row: int) -> CellGroupInterface:
     #     pass
 
     # @abstractmethod
-    # def get_col_ith(self, col: int) -> CellsBoxInterface:
+    # def get_col_ith(self, col: int) -> CellGroupInterface:
     #     pass
 
     @abstractmethod

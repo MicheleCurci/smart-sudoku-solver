@@ -1,19 +1,21 @@
 from sys import int_info
-from sudoku_grid_interface import SudokuGridInterface, CellsBoxInterface, CellInterface, SquareInterface
-import itertools
+from sudoku_grid_interface import GridInterface, CellGroupInterface, CellInterface, SquareInterface
 # from typeguard import typechecked
 
 
-class CellsBox(CellsBoxInterface):
+class CellGroup(CellGroupInterface):
 
-    def __init__(self, cells: set()) -> None:
+    def __init__(self, cells: set) -> None:
         self.cells = set(cells)
 
     def __iter__(self):
         return iter(self.cells)
+    
+    def get_cells(self):
+        return self.cells
 
     def is_valid(self) -> bool:
-        return all([cell.is_valid() for cell in self.cells])
+        return all([cell.is_valid() for cell in self.cells]) and self.cells == set(range(1, 10))
 
     def is_empty(self) -> bool:
         return len(self.cells) == 0
@@ -41,7 +43,7 @@ class CellsBox(CellsBoxInterface):
     #         return set()
     #     return set.intersection(*candidates_for_each_cell)
 
-    def get_candidates_union(self) -> set():
+    def get_candidates_union(self) -> set:
         candidates_for_each_cell = [cell.get_candidates()
                                     for cell in self.cells]
         if candidates_for_each_cell == []:
@@ -54,17 +56,17 @@ class CellsBox(CellsBoxInterface):
     #             return True
     #     return False
 
-    # def union(self, other: CellsBoxInterface):
+    # def union(self, other: CellGroupInterface):
     #     tt = other.get_candidates_union()
-    #     return CellsBox(self.cells.union(tt))
+    #     return CellGroup(self.cells.union(tt))
 
-    def difference(self, other: CellsBoxInterface):
-        return CellsBox(self.cells.difference(other.cells))
+    def difference(self, other: CellGroupInterface):
+        return CellGroup(self.cells.difference(other.cells))
 
 
 class Cell(CellInterface):
 
-    def __init__(self, row: int, column: int, value: int, candidates=set(range(1, 10))) -> None:
+    def __init__(self, row: int, column: int, value: int, candidates:set =set(range(1, 10))) -> None:
         self.row = row
         self.column = column
         self.candidates = candidates
@@ -101,13 +103,13 @@ class Cell(CellInterface):
     def is_marked(self) -> bool:
         return self.get_value() in range(1, 10)
 
-    # def is_valid(self) -> bool:
-    #     return self.get_value() in range(10)
+    def is_valid(self) -> bool:
+        return self.get_value() in range(10)
 
     def is_empty(self) -> bool:
         return self.get_value() == 0
 
-    def get_candidates(self) -> set():
+    def get_candidates(self) -> set:
         return self.candidates
 
     # def has_candidate(self, candidate) -> bool:
@@ -116,7 +118,7 @@ class Cell(CellInterface):
     # def has_single_candidate(self) -> bool:
     #     return len(self.candidates) == 1
 
-    def set_candidates(self, candidates: set()) -> None:
+    def set_candidates(self, candidates: set) -> None:
         self.candidates = candidates
 
     def remove_candidate(self, candidate):
@@ -128,7 +130,7 @@ class Cell(CellInterface):
 
 class Square(SquareInterface):
 
-    def __init__(self, square: list(list())) -> None:
+    def __init__(self, square: set[set]) -> None:
         self.grid = square
 
     # def get_cell(self, row: int, col: int) -> CellInterface:
@@ -171,37 +173,37 @@ class Square(SquareInterface):
     #     return [cell.get_value() for cell in self.flatten() if cell.is_marked()]
 
     def get_other_empty_cells_in_square(self, cells_to_exclude: list):
-        return CellsBox([cell for cell in self.flatten() if cell.is_empty() and cell not in cells_to_exclude])
+        return CellGroup({cell for cell in self.flatten() if cell.is_empty() and cell not in cells_to_exclude})
 
     def get_rows(self):
-        return [CellsBox(row) for row in self.grid]
+        return [CellGroup(row) for row in self.grid]
 
     def get_columns(self):
         transposed_grid = list(zip(*self.grid))
-        return [CellsBox(column) for column in transposed_grid]
+        return [CellGroup(column) for column in transposed_grid]
 
     # def get_empty_rows(self):
-    #     return [CellsBox(row) for row in self.grid]
+    #     return [CellGroup(row) for row in self.grid]
 
     # def get_empty_cells_on_columns(self):
     #     transposed_grid = list(zip(*self.grid))
-    #     return [CellsBox(column) for column in transposed_grid]
+    #     return [CellGroup(column) for column in transposed_grid]
 
 
-class SudokuGrid(SudokuGridInterface):
+class Grid(GridInterface):
 
     def __init__(self, encoded_sudoku_grid) -> None:
 
         encoded_sudoku_grid = [int(char)
                                for char in list(encoded_sudoku_grid)[::-1]]
-        self.grid = [[0 for _ in range(9)] for _ in range(9)]
+        self.grid = [[Cell(0, 0, 0) for _ in range(9)] for _ in range(9)]
         for row in range(9):
             for column in range(9):
                 self.grid[row][column] = Cell(
                     row, column, value=encoded_sudoku_grid.pop())
         self.update_candidates_in_all_cells()
 
-    def __eq__(self, other: SudokuGridInterface) -> bool:
+    def __eq__(self, other: GridInterface) -> bool:
         for row in range(9):
             for column in range(9):
                 if self.get_cell(row, column).get_candidates() != other.get_cell(row, column).get_candidates():
@@ -210,19 +212,17 @@ class SudokuGrid(SudokuGridInterface):
         return self.decode() == other.decode()
 
     def is_valid(self) -> bool:
-        for row in range(9):
-            for column in range(9):
-                if not self.get_cell(row, column).is_valid():
-                    return False
 
-        for idx in range(9):
-            if not self.get_row_ith(self, idx).is_valid():
+        for row in self.get_rows():
+            if not row.is_valid():
                 return False
 
-            if not self.get_col_ith(self, idx).is_valid():
+        for col in self.get_columns():
+            if not col.is_valid():
                 return False
 
-            if not self.get_square(self, idx).is_valid():
+        for square in self.get_all_squares():
+            if not square.is_valid():
                 return False
 
         return True
@@ -258,42 +258,42 @@ class SudokuGrid(SudokuGridInterface):
             cell.remove_candidate(candidate_to_remove)
 
     def get_other_cells_on_row(self, row: int, col: int):
-        return CellsBox([cell for cell in self.grid[row] if cell.get_position() != (row, col)])
+        return CellGroup([cell for cell in self.grid[row] if cell.get_position() != (row, col)])
 
     def get_rows(self):
-        return [CellsBox(row) for row in self.grid]
+        return [CellGroup(row) for row in self.grid]
 
     def get_columns(self):
         transposed_grid = list(zip(*self.grid))
-        return [CellsBox(column) for column in transposed_grid]
+        return [CellGroup(column) for column in transposed_grid]
 
     # def get_cells_on_row(self, row: int):
-    #     return CellsBox(self.grid[row])
+    #     return CellGroup(self.grid[row])
 
     def get_empty_cells_on_row(self, row: int):
-        return CellsBox([cell for cell in self.grid[row] if cell.is_empty()])
+        return CellGroup([cell for cell in self.grid[row] if cell.is_empty()])
 
     def get_other_cells_on_column(self, row: int, col: int):
-        return CellsBox([vector[col] for vector in self.grid if vector[col].get_position() != (row, col)])
+        return CellGroup([vector[col] for vector in self.grid if vector[col].get_position() != (row, col)])
 
     # def get_cells_on_column(self, col: int):
-    #     return CellsBox([row[col] for row in self.grid if row[col].get_col() == col])
+    #     return CellGroup([row[col] for row in self.grid if row[col].get_col() == col])
 
     def get_empty_cells_on_col(self, col: int):
-        return CellsBox([row[col] for row in self.grid if row[col].get_col() == col and row[col].is_empty()])
+        return CellGroup([row[col] for row in self.grid if row[col].get_col() == col and row[col].is_empty()])
 
     def get_other_cells_in_grid(self, row: int, col: int):
-        return CellsBox([cell for cell in self.get_square(
+        return CellGroup([cell for cell in self.get_square(
             row, col).flatten() if cell.get_position() != (row, col)])
 
     def get_other_cells_on_row_by_cell(self, main_cell: Cell):
-        return CellsBox([cell for cell in self.grid[main_cell.get_row()] if cell.get_position() != main_cell.get_position()])
+        return CellGroup([cell for cell in self.grid[main_cell.get_row()] if cell.get_position() != main_cell.get_position()])
 
     def get_other_cells_on_column_by_cell(self, main_cell: Cell):
-        return CellsBox([vector[main_cell.get_col()] for vector in self.grid if vector[main_cell.get_col()].get_position() != main_cell.get_position()])
+        return CellGroup([vector[main_cell.get_col()] for vector in self.grid if vector[main_cell.get_col()].get_position() != main_cell.get_position()])
 
     def get_other_cells_in_grid_by_cell(self, main_cell: Cell):
-        return CellsBox([cell for cell in self.get_square(
+        return CellGroup([cell for cell in self.get_square(
             main_cell.get_row(), main_cell.get_col()).flatten() if cell.get_position() != main_cell.get_position()])
 
     def get_cell(self, row: int, col: int) -> CellInterface:

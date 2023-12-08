@@ -1,10 +1,10 @@
 from cyclic_pipeline import CyclicPipeline
-from sudoku_grid import SudokuGrid
+from sudoku_grid import Grid
 from sudoku_techniques import SingleCandidateTechnique, IsolateCandidatesInSquareTechnique, IsolateCandidatesInRowsAndColumnsTechnique, DoubleCoupleTechnique, DoubleCoupleAlignedTechnique, ThreeCandidatesInThreeCellsTechnique
 import time
 
 
-def is_grid_filled(grid: SudokuGrid):
+def is_grid_filled(grid: Grid):
     return grid.is_filled()
 
 
@@ -13,7 +13,7 @@ def main():
     sudoku_cyclic_pipeline = CyclicPipeline(
         [SingleCandidateTechnique(), IsolateCandidatesInSquareTechnique(), IsolateCandidatesInRowsAndColumnsTechnique(), DoubleCoupleTechnique(), DoubleCoupleAlignedTechnique(), ThreeCandidatesInThreeCellsTechnique()])
 
-    grid = SudokuGrid("080020560000100007000000000050090408007800003090010050204000800060085000000200100")
+    grid = Grid("080020560000100007000000000050090408007800003090010050204000800060085000000200100")
     grid.show()
 
     st = time.time()
