@@ -1,6 +1,6 @@
 from job_interface import JobInterface
-from sudoku_grid_interface import GridInterface
-from sudoku_grid import CellGroup
+from sudoku_interfaces import GridInterface
+from sudoku_entities import CellGroup
 
 
 # class Result():
@@ -66,7 +66,7 @@ class IsolateCandidatesInSquareTechnique(JobInterface):
 
             for row in square.get_rows():
                 empty_cells_in_subrow = CellGroup(
-                    [cell for cell in row.cells if cell.is_empty()])
+                    {cell for cell in row.get_cells() if cell.is_empty()})
 
                 if len(empty_cells_in_subrow.cells) == 0:
                     continue
@@ -85,14 +85,14 @@ class IsolateCandidatesInSquareTechnique(JobInterface):
                 other_empty_cells_in_square = square.get_other_empty_cells_in_square(
                     empty_cells_in_subrow.cells)
 
-                for cell in other_empty_cells_in_square.cells:
+                for cell in other_empty_cells_in_square.get_cells():
                     cell.remove_candidates(unique_candidates_in_subrow)
 
             # same logic on columns
             for column in square.get_columns():
 
                 empty_cells_in_subcolumn = CellGroup(
-                    [cell for cell in column.cells if cell.is_empty()])
+                    {cell for cell in column.get_cells() if cell.is_empty()})
 
                 if len(empty_cells_in_subcolumn.cells) == 0:
                     continue
@@ -103,7 +103,7 @@ class IsolateCandidatesInSquareTechnique(JobInterface):
                     col_index).difference(empty_cells_in_subcolumn)
 
                 unique_candidates_in_subcol = empty_cells_in_subcolumn.get_candidates_union(
-                ).difference(CellGroup(empty_cells_on_same_column_in_other_squares).get_candidates_union())
+                ).difference(CellGroup(empty_cells_on_same_column_in_other_squares.get_cells()).get_candidates_union())
 
                 if len(unique_candidates_in_subcol) == 0:
                     continue
@@ -111,7 +111,7 @@ class IsolateCandidatesInSquareTechnique(JobInterface):
                 other_empty_cells_in_square = square.get_other_empty_cells_in_square(
                     empty_cells_in_subcolumn.cells)
 
-                for cell in other_empty_cells_in_square.cells:
+                for cell in other_empty_cells_in_square.get_cells():
                     cell.remove_candidates(unique_candidates_in_subcol)
 
         return grid
@@ -128,7 +128,7 @@ class IsolateCandidatesInRowsAndColumnsTechnique(JobInterface):
 
             for row in square.get_rows():
                 empty_cells_in_subrow = CellGroup(
-                    [cell for cell in row.cells if cell.is_empty()])
+                    {cell for cell in row.get_cells() if cell.is_empty()})
 
                 if len(empty_cells_in_subrow.cells) == 0:
                     continue
@@ -139,7 +139,7 @@ class IsolateCandidatesInRowsAndColumnsTechnique(JobInterface):
                     empty_cells_in_subrow.cells)
 
                 empty_cells_on_same_row_in_other_squares = CellGroup(grid.get_empty_cells_on_row(
-                    row_index).difference(empty_cells_in_subrow))
+                    row_index).difference(empty_cells_in_subrow).get_cells())
 
                 unique_candidates_in_subrow = empty_cells_in_subrow.get_candidates_union(
                 ).difference(other_empty_cells_in_square.get_candidates_union())
@@ -153,7 +153,7 @@ class IsolateCandidatesInRowsAndColumnsTechnique(JobInterface):
             # same logic on columns
             for column in square.get_columns():
                 empty_cells_in_subcol = CellGroup(
-                    [cell for cell in column.cells if cell.is_empty()])
+                    {cell for cell in column.get_cells() if cell.is_empty()})
 
                 if len(empty_cells_in_subcol.cells) == 0:
                     continue
@@ -164,7 +164,7 @@ class IsolateCandidatesInRowsAndColumnsTechnique(JobInterface):
                     empty_cells_in_subcol.cells)
 
                 empty_cells_on_same_col_in_other_squares = CellGroup(grid.get_empty_cells_on_col(
-                    col_index).difference(empty_cells_in_subcol))
+                    col_index).difference(empty_cells_in_subcol).get_cells())
 
                 unique_candidates_in_subcol = empty_cells_in_subcol.get_candidates_union(
                 ).difference(other_empty_cells_in_square.get_candidates_union())
@@ -172,7 +172,7 @@ class IsolateCandidatesInRowsAndColumnsTechnique(JobInterface):
                 if len(unique_candidates_in_subcol) == 0:
                     continue
 
-                for cell in empty_cells_on_same_col_in_other_squares.cells:
+                for cell in empty_cells_on_same_col_in_other_squares.get_cells():
                     cell.remove_candidates(unique_candidates_in_subcol)
 
         return grid
@@ -196,7 +196,7 @@ class DoubleCoupleTechnique(JobInterface):
                         continue
 
                     common_candidates = cell_1.get_candidates()
-                    for sibling_cell in square.get_other_empty_cells_in_square([cell_1, cell_2]).cells:
+                    for sibling_cell in square.get_other_empty_cells_in_square({cell_1, cell_2}).get_cells():
                         sibling_cell.remove_candidates(common_candidates)
         return grid
 
@@ -220,7 +220,7 @@ class DoubleCoupleAlignedTechnique(JobInterface):
                         continue
 
                     common_candidates = cell_1.get_candidates()
-                    for cell_on_same_row in row.difference(CellGroup([cell_1, cell_2])):
+                    for cell_on_same_row in row.difference(CellGroup({cell_1, cell_2})).get_cells():
                         cell_on_same_row.remove_candidates(common_candidates)
 
         for col in grid.get_columns():
@@ -234,7 +234,7 @@ class DoubleCoupleAlignedTechnique(JobInterface):
                         continue
 
                     common_candidates = cell_1.get_candidates()
-                    for cell_on_same_col in col.difference(CellGroup([cell_1, cell_2])):
+                    for cell_on_same_col in col.difference(CellGroup({cell_1, cell_2})).get_cells():
                         cell_on_same_col.remove_candidates(common_candidates)
         return grid
 
@@ -250,8 +250,8 @@ class ThreeCandidatesInThreeCellsTechnique(JobInterface):
         for rcs_group in rcs_groups:   
             for rcs in rcs_group:
 
-                empty_cells_in_rcs = [
-                    cell for cell in rcs.get_empty_cells()]
+                empty_cells_in_rcs = {
+                    cell for cell in rcs.get_empty_cells()}
 
                 for cell_1 in empty_cells_in_rcs:
                     for cell_2 in empty_cells_in_rcs:
@@ -260,10 +260,10 @@ class ThreeCandidatesInThreeCellsTechnique(JobInterface):
                                 continue
 
                             triple_candidates_union = CellGroup(
-                                [cell_1, cell_2, cell_3]).get_candidates_union()
+                                {cell_1, cell_2, cell_3}).get_candidates_union()
 
-                            candidates_in_other_cells_in_rcs = CellGroup(list(set(empty_cells_in_rcs).difference(
-                                {cell_1, cell_2, cell_3}))).get_candidates_union()
+                            candidates_in_other_cells_in_rcs = CellGroup(empty_cells_in_rcs.difference(
+                                {cell_1, cell_2, cell_3})).get_candidates_union()
 
                             if len(triple_candidates_union.difference(candidates_in_other_cells_in_rcs)) == 3:
                                 for cell in [cell_1, cell_2, cell_3]:

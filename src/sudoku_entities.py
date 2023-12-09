@@ -1,72 +1,15 @@
 from sys import int_info
-from sudoku_grid_interface import GridInterface, CellGroupInterface, CellInterface, SquareInterface
+from sudoku_interfaces import GridInterface, CellGroupInterface, CellInterface, SquareInterface
+from typing import Set
 # from typeguard import typechecked
 
-
-class CellGroup(CellGroupInterface):
-
-    def __init__(self, cells: set) -> None:
-        self.cells = set(cells)
-
-    def __iter__(self):
-        return iter(self.cells)
-    
-    def get_cells(self):
-        return self.cells
-
-    def is_valid(self) -> bool:
-        return all([cell.is_valid() for cell in self.cells]) and self.cells == set(range(1, 10))
-
-    def is_empty(self) -> bool:
-        return len(self.cells) == 0
-
-    # return random cell
-    def get_cell(self) -> CellInterface:
-        return list(self.cells)[0]
-
-    def get_marked_values(self):
-        return [cell.get_value() for cell in self.cells if cell.is_marked()]
-
-    def get_empty_cells(self):
-        return [cell for cell in self.cells if cell.is_empty()]
-
-    # def get_candidates(self) -> set():
-    #     candidates = set()
-    #     for cell in self.cells:
-    #         candidates = candidates.union(cell.get_candidates())
-    #     return candidates
-
-    # def get_candidates_intersection(self) -> set():
-    #     candidates_for_each_cell = [cell.get_candidates()
-    #                                 for cell in self.cells]
-    #     if candidates_for_each_cell == []:
-    #         return set()
-    #     return set.intersection(*candidates_for_each_cell)
-
-    def get_candidates_union(self) -> set:
-        candidates_for_each_cell = [cell.get_candidates()
-                                    for cell in self.cells]
-        if candidates_for_each_cell == []:
-            return set()
-        return set.union(*candidates_for_each_cell)
-
-    # def has_candidate(self, candidate):
-    #     for cell in self.cells:
-    #         if cell.has_candidate(candidate):
-    #             return True
-    #     return False
-
-    # def union(self, other: CellGroupInterface):
-    #     tt = other.get_candidates_union()
-    #     return CellGroup(self.cells.union(tt))
-
-    def difference(self, other: CellGroupInterface):
-        return CellGroup(self.cells.difference(other.get_cells()))
-
+# types definition
+#Candidate = int
+#Candidates = Set[Candidate]
 
 class Cell(CellInterface):
 
-    def __init__(self, row: int, column: int, value: int, candidates:set =set(range(1, 10))) -> None:
+    def __init__(self, row: int, column: int, value: int, candidates: set[int] = set(range(1, 10))) -> None:
         self.row = row
         self.column = column
         self.candidates = candidates
@@ -109,7 +52,7 @@ class Cell(CellInterface):
     def is_empty(self) -> bool:
         return self.get_value() == 0
 
-    def get_candidates(self) -> set:
+    def get_candidates(self) -> set[int]:
         return self.candidates
 
     # def has_candidate(self, candidate) -> bool:
@@ -118,19 +61,80 @@ class Cell(CellInterface):
     # def has_single_candidate(self) -> bool:
     #     return len(self.candidates) == 1
 
-    def set_candidates(self, candidates: set) -> None:
+    def set_candidates(self, candidates: set[int]) -> None:
         self.candidates = candidates
 
-    def remove_candidate(self, candidate):
+    def remove_candidate(self, candidate: int) -> None:
         self.candidates.discard(candidate)
 
-    def remove_candidates(self, candidates: set):
+    def remove_candidates(self, candidates: set[int]) -> None:
         self.candidates = self.candidates.difference(candidates)
+
+
+class CellGroup(CellGroupInterface):
+
+    def __init__(self, cells: set) -> None:
+        self.cells = set(cells)
+
+    def __iter__(self):
+        return iter(self.cells)
+    
+    def get_cells(self) -> set[Cell]:
+        return self.cells
+
+    def is_valid(self) -> bool:
+        return all([cell.is_valid() for cell in self.cells]) and self.cells == set(range(1, 10))
+
+    def is_empty(self) -> bool:
+        return len(self.cells) == 0
+
+    # return random cell
+    def get_cell(self) -> CellInterface:
+        return list(self.cells)[0]
+
+    def get_marked_values(self):
+        return [cell.get_value() for cell in self.get_cells() if cell.is_marked()]
+
+    def get_empty_cells(self):
+        return [cell for cell in self.get_cells() if cell.is_empty()]
+
+    # def get_candidates(self) -> set():
+    #     candidates = set()
+    #     for cell in self.cells:
+    #         candidates = candidates.union(cell.get_candidates())
+    #     return candidates
+
+    # def get_candidates_intersection(self) -> set():
+    #     candidates_for_each_cell = [cell.get_candidates()
+    #                                 for cell in self.cells]
+    #     if candidates_for_each_cell == []:
+    #         return set()
+    #     return set.intersection(*candidates_for_each_cell)
+
+    def get_candidates_union(self) -> set[int]:
+        candidates_for_each_cell = [cell.get_candidates()
+                                    for cell in self.get_cells()]
+        if candidates_for_each_cell == []:
+            return set()
+        return set.union(*candidates_for_each_cell)
+
+    # def has_candidate(self, candidate):
+    #     for cell in self.cells:
+    #         if cell.has_candidate(candidate):
+    #             return True
+    #     return False
+
+    # def union(self, other: CellGroupInterface):
+    #     tt = other.get_candidates_union()
+    #     return CellGroup(self.cells.union(tt))
+
+    def difference(self, other: CellGroupInterface):
+        return CellGroup(self.get_cells().difference(other.get_cells()))
 
 
 class Square(SquareInterface):
 
-    def __init__(self, square: set[set]) -> None:
+    def __init__(self, square: list[list[Cell]]) -> None:
         self.grid = square
 
     # def get_cell(self, row: int, col: int) -> CellInterface:
@@ -151,7 +155,7 @@ class Square(SquareInterface):
     #     values = [cell.get_value() for cell in self.flatten()]
     #     return values.sort() == list(range(1, 10))
 
-    def flatten(self) -> list:
+    def flatten(self) -> list[Cell]:
         cells_in_square = []
         for row in self.grid:
             cells_in_square += row
@@ -176,7 +180,7 @@ class Square(SquareInterface):
         return CellGroup({cell for cell in self.flatten() if cell.is_empty() and cell not in cells_to_exclude})
 
     def get_rows(self):
-        return [CellGroup(row) for row in self.grid]
+        return [CellGroup(set(row)) for row in self.grid]
 
     def get_columns(self):
         transposed_grid = list(zip(*self.grid))
@@ -250,9 +254,9 @@ class Grid(GridInterface):
             cell.get_candidates().difference(excluded_values_from_same_row_column_grid))
 
     def update_candidates_in_cell_row_column_grid(self, cell):
-        cells_to_update = set(list(self.get_other_cells_on_column_by_cell(cell).cells) +
-                                   list(self.get_other_cells_on_row_by_cell(cell).cells) +
-                                   list(self.get_other_cells_in_grid_by_cell(cell).cells))
+        cells_to_update = set(list(self.get_other_cells_on_column_by_cell(cell).get_cells()) +
+                                   list(self.get_other_cells_on_row_by_cell(cell).get_cells()) +
+                                   list(self.get_other_cells_in_grid_by_cell(cell).get_cells()))
         candidate_to_remove = cell.get_value()
         for cell in cells_to_update:
             cell.remove_candidate(candidate_to_remove)
@@ -305,10 +309,10 @@ class Grid(GridInterface):
     # def get_all_unmarked_cells(self) -> list:
     #     return [cell for cell in self.get_all_cells() if cell.is_empty()]
 
-    def get_square(self, row: int, col: int) -> SquareInterface:
+    def get_square(self, row: int, col: int) -> Square:
         return Square(square=[rows[col//3*3: col//3*3+3] for rows in self.grid[row//3*3: row//3*3+3]])
 
-    def get_all_squares(self) -> list:
+    def get_all_squares(self) -> list[Square]:
         return [self.get_square(row, col) for row in range(0, 9, 3) for col in range(0, 9, 3)]
 
     def set_cell_value(self, cell: Cell, value: int):
