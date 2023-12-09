@@ -1,8 +1,6 @@
-from email import header
 from job_interface import JobInterface
 from typing import TypeVar, Callable
 from copy import deepcopy
-import time
 
 A = TypeVar("A")  # the variable name must coincide with the string
 
@@ -11,10 +9,9 @@ A = TypeVar("A")  # the variable name must coincide with the string
 
 class CyclicPipeline():
 
-
     def __init__(self, jobs: list[JobInterface] = [], max_iterations = 1000) -> None:
-        self.jobs: list = jobs
-        self.head: int = 0 if len(jobs) > 0 else None
+        self.jobs: list[JobInterface] = jobs
+        self.head: int = 0 if len(jobs) > 0 else -1
         self.max_iterations = max_iterations
 
     def add_job(self, job: JobInterface) -> None:
@@ -37,13 +34,13 @@ class CyclicPipeline():
 
             # compare if input has changed after a complete pipeline iteration
             if self.head == last_job_index and iteration_input == output:
-                print("- CyclicPipeline: input unchanged after completed iteration")
-                print("#Iterations: " + str(num_iterations))
+                print("> CyclicPipeline: input unchanged after completed iteration")
+                print("> #Iterations: " + str(num_iterations))
                 return output  # input unchanged after iteration
 
             if stop_condition(output):
-                print("- CyclicPipeline: stop condition verified")
-                print("#Iterations: " + str(num_iterations))
+                print("> CyclicPipeline: stop condition verified")
+                print("> #Iterations: " + str(num_iterations))
                 return output  # stop condition verified
 
             self._increment_head()

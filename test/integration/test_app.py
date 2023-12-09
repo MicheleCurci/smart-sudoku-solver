@@ -22,6 +22,7 @@ class TestCalculator(TestCase):
         expected = "968372415754189236321546978276815394513294687489637152897421563632958741145763829"
 
         self.assertEqual(actual, expected)
+        self.assertEqual(grid.is_valid(), True)
 
     def test_hard_sudoku_success(self):
 
@@ -33,6 +34,7 @@ class TestCalculator(TestCase):
         expected = "483729561529146387716538249152693478647852913398417652274961835961385724835274196"
 
         self.assertEqual(actual, expected)
+        self.assertEqual(grid.is_valid(), True)
 
     def test_sudoku_failure(self):
 

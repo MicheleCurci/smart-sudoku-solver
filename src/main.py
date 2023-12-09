@@ -1,5 +1,5 @@
 from cyclic_pipeline import CyclicPipeline
-from sudoku_grid import Grid
+from sudoku_entities import Grid
 from sudoku_techniques import SingleCandidateTechnique, IsolateCandidatesInSquareTechnique, IsolateCandidatesInRowsAndColumnsTechnique, DoubleCoupleTechnique, DoubleCoupleAlignedTechnique, ThreeCandidatesInThreeCellsTechnique
 import time
 

@@ -31,18 +31,6 @@ class CellInterface(ABC):
     def get_col(self) -> int:
         pass
 
-    # @abstractmethod
-    # def has_single_candidate(self) -> bool:
-    #     pass
-
-    # @abstractmethod
-    # def add_candidate(self) -> None:
-    #    pass
-
-    @abstractmethod
-    def remove_candidates(self, candidates_to_remove: set[int]) -> None:
-       pass
-
     @abstractmethod
     def is_valid(self) -> bool:
         pass
@@ -108,7 +96,7 @@ class SquareInterface(ABC):
         pass
 
     @abstractmethod
-    def get_other_empty_cells_in_square(self, main_cells: set[CellInterface]) -> CellGroupInterface:
+    def get_other_empty_cells_in_square(self, cells_to_exclude: set[CellInterface]) -> CellGroupInterface:
         pass
 
 class GridInterface(ABC):

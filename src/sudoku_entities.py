@@ -1,11 +1,4 @@
-from sys import int_info
 from sudoku_interfaces import GridInterface, CellGroupInterface, CellInterface, SquareInterface
-from typing import Set
-# from typeguard import typechecked
-
-# types definition
-#Candidate = int
-#Candidates = Set[Candidate]
 
 class Cell(CellInterface):
 
@@ -55,12 +48,6 @@ class Cell(CellInterface):
     def get_candidates(self) -> set[int]:
         return self.candidates
 
-    # def has_candidate(self, candidate) -> bool:
-    #     return candidate in self.candidates
-
-    # def has_single_candidate(self) -> bool:
-    #     return len(self.candidates) == 1
-
     def set_candidates(self, candidates: set[int]) -> None:
         self.candidates = candidates
 
@@ -83,7 +70,7 @@ class CellGroup(CellGroupInterface):
         return self.cells
 
     def is_valid(self) -> bool:
-        return all([cell.is_valid() for cell in self.cells]) and self.cells == set(range(1, 10))
+        return set(self.get_marked_values()) == set(range(1, 10))
 
     def is_empty(self) -> bool:
         return len(self.cells) == 0
@@ -141,15 +128,7 @@ class Square(SquareInterface):
     #     return self.grid[row][col]
 
     def is_valid(self) -> bool:
-        values = [cell.get_value()
-                  for cell in self.flatten() if cell.get_value() != 0]
-        if len(values) != len(set(values)):
-            return False
-
-        for cell in self.flatten():
-            if not cell.is_valid():
-                return False
-        return True
+        return set(self.get_marked_values()) == set(range(1, 10))
 
     # def is_filled(self) -> bool:
     #     values = [cell.get_value() for cell in self.flatten()]
@@ -173,8 +152,8 @@ class Square(SquareInterface):
             cells_in_square += row
         return [cell for cell in cells_in_square if cell.is_empty()]
 
-    # def get_marked_values(self):
-    #     return [cell.get_value() for cell in self.flatten() if cell.is_marked()]
+    def get_marked_values(self):
+        return [cell.get_value() for cell in self.flatten() if cell.is_marked()]
 
     def get_other_empty_cells_in_square(self, cells_to_exclude: list):
         return CellGroup({cell for cell in self.flatten() if cell.is_empty() and cell not in cells_to_exclude})
@@ -219,14 +198,17 @@ class Grid(GridInterface):
 
         for row in self.get_rows():
             if not row.is_valid():
+                print("false row")
                 return False
 
         for col in self.get_columns():
             if not col.is_valid():
+                print("false col")
                 return False
 
         for square in self.get_all_squares():
             if not square.is_valid():
+                print("false square")
                 return False
 
         return True
@@ -265,7 +247,7 @@ class Grid(GridInterface):
         return CellGroup({cell for cell in self.grid[row] if cell.get_position() != (row, col)})
 
     def get_rows(self):
-        return {CellGroup(set(row)) for row in self.grid}
+        return [CellGroup(set(row)) for row in self.grid]
 
     def get_columns(self):
         transposed_grid = list(zip(*self.grid))
