@@ -16,8 +16,7 @@ class CyclicPipeline():
 
     def add_job(self, job: JobInterface) -> None:
         self.jobs.append(job)
-        if self.head < 0:
-            self.head = 0
+        self.head = max(self.head, 0)
 
     def start(self, input: A, stop_condition: Callable):
         last_job_index = len(self.jobs)-1
@@ -44,6 +43,7 @@ class CyclicPipeline():
                 return output  # stop condition verified
 
             self._increment_head()
+        return
 
     # TODO: print -> abstract methods with custom messages
 

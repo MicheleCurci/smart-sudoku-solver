@@ -23,5 +23,6 @@ python -m unittest discover -s ../test
 
 
 # Coverage:
+cd src
 coverage run -m unittest discover -s ../test
 coverage report -m

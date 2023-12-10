@@ -54,7 +54,6 @@ class SingleCandidateTechnique(JobInterface):
 
 # Tecnique: Stucked candidate type 1
 
-
 class IsolateCandidatesInSquareTechnique(JobInterface):
 
     def __init__(self) -> None:
@@ -269,6 +268,6 @@ class ThreeCandidatesInThreeCellsTechnique(JobInterface):
                                 for cell in [cell_1, cell_2, cell_3]:
                                     cell.remove_candidates(
                                         candidates_in_other_cells_in_rcs)
-                                return grid #...to speed up because it rarely happens
+                                return grid  # ...to speed up because it rarely happens
 
         return grid

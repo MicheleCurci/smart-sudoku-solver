@@ -240,8 +240,8 @@ class Grid(GridInterface):
                                    list(self.get_other_cells_on_row_by_cell(cell).get_cells()) +
                                    list(self.get_other_cells_in_grid_by_cell(cell).get_cells()))
         candidate_to_remove = cell.get_value()
-        for cell in cells_to_update:
-            cell.remove_candidate(candidate_to_remove)
+        for cell_to_update in cells_to_update:
+            cell_to_update.remove_candidate(candidate_to_remove)
 
     def get_other_cells_on_row(self, row: int, col: int):
         return CellGroup({cell for cell in self.grid[row] if cell.get_position() != (row, col)})
