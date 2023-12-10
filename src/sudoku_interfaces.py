@@ -1,8 +1,8 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
 
-class CellInterface(ABC):
 
+class CellInterface(ABC):
     @abstractmethod
     def get_value(self) -> int:
         pass
@@ -51,8 +51,8 @@ class CellInterface(ABC):
     def get_position(self) -> tuple[int, int]:
         pass
 
-class CellGroupInterface(ABC):
 
+class CellGroupInterface(ABC):
     @abstractmethod
     def get_cells(self) -> set[CellInterface]:
         pass
@@ -72,10 +72,9 @@ class CellGroupInterface(ABC):
     @abstractmethod
     def difference(self, other: CellGroupInterface) -> CellGroupInterface:
         pass
-    
+
 
 class SquareInterface(ABC):
-
     @abstractmethod
     def is_valid(self) -> bool:
         pass
@@ -97,8 +96,11 @@ class SquareInterface(ABC):
         pass
 
     @abstractmethod
-    def get_other_empty_cells_in_square(self, main_cells: set[CellInterface]) -> CellGroupInterface:
+    def get_other_empty_cells_in_square(
+        self, main_cells: set[CellInterface]
+    ) -> CellGroupInterface:
         pass
+
 
 class GridInterface(ABC):
     @abstractmethod
@@ -152,7 +154,7 @@ class GridInterface(ABC):
     @abstractmethod
     def get_empty_cells_on_row(self, row: int) -> CellGroupInterface:
         pass
-    
+
     @abstractmethod
     def get_empty_cells_on_col(self, col: int) -> CellGroupInterface:
         pass

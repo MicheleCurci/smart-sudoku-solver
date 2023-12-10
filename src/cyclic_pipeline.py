@@ -7,9 +7,8 @@ A = TypeVar("A")  # the variable name must coincide with the string
 # cyclic pipeline: stops when stop_condition is verified or when the input is unchanged after an iteration
 
 
-class CyclicPipeline():
-
-    def __init__(self, jobs: list[JobInterface] = [], max_iterations = 1000) -> None:
+class CyclicPipeline:
+    def __init__(self, jobs: list[JobInterface] = [], max_iterations=1000) -> None:
         self.jobs: list[JobInterface] = jobs
         self.head: int = 0 if len(jobs) > 0 else -1
         self.max_iterations = max_iterations
@@ -19,7 +18,7 @@ class CyclicPipeline():
         self.head = max(self.head, 0)
 
     def start(self, input: A, stop_condition: Callable):
-        last_job_index = len(self.jobs)-1
+        last_job_index = len(self.jobs) - 1
 
         iteration_input = None
         num_iterations = 0
@@ -52,4 +51,4 @@ class CyclicPipeline():
         return output
 
     def _increment_head(self):
-        self.head = (self.head+1) % len(self.jobs)
+        self.head = (self.head + 1) % len(self.jobs)

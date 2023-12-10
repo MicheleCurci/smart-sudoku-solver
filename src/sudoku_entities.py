@@ -1,8 +1,20 @@
-from sudoku_interfaces import GridInterface, CellGroupInterface, CellInterface, SquareInterface
+from __future__ import annotations
+from sudoku_interfaces import (
+    GridInterface,
+    CellGroupInterface,
+    CellInterface,
+    SquareInterface,
+)
+
 
 class Cell(CellInterface):
-
-    def __init__(self, row: int, column: int, value: int, candidates: set[int] = set(range(1, 10))) -> None:
+    def __init__(
+        self,
+        row: int,
+        column: int,
+        value: int,
+        candidates: set[int] = set(range(1, 10)),
+    ) -> None:
         self.row = row
         self.column = column
         self.candidates = candidates
@@ -10,8 +22,8 @@ class Cell(CellInterface):
 
         self.set_value(value)
 
-    def __eq__(self, other):
-        return self.row == other.row and self.column == other.column
+    def __eq__(self, other: Cell):
+        return self.row == other.get_row() and self.column == other.get_col()
 
     def __repr__(self):
         return "(" + str(self.row) + ", " + str(self.column) + ")"
@@ -59,13 +71,12 @@ class Cell(CellInterface):
 
 
 class CellGroup(CellGroupInterface):
-
     def __init__(self, cells: set) -> None:
         self.cells = set(cells)
 
     def __iter__(self):
         return iter(self.cells)
-    
+
     def get_cells(self) -> set[Cell]:
         return self.cells
 
@@ -99,8 +110,7 @@ class CellGroup(CellGroupInterface):
     #     return set.intersection(*candidates_for_each_cell)
 
     def get_candidates_union(self) -> set[int]:
-        candidates_for_each_cell = [cell.get_candidates()
-                                    for cell in self.get_cells()]
+        candidates_for_each_cell = [cell.get_candidates() for cell in self.get_cells()]
         if candidates_for_each_cell == []:
             return set()
         return set.union(*candidates_for_each_cell)
@@ -120,7 +130,6 @@ class CellGroup(CellGroupInterface):
 
 
 class Square(SquareInterface):
-
     def __init__(self, square: list[list[Cell]]) -> None:
         self.grid = square
 
@@ -135,7 +144,7 @@ class Square(SquareInterface):
     #     return values.sort() == list(range(1, 10))
 
     def flatten(self) -> list[Cell]:
-        cells_in_square = []
+        cells_in_square: list[Cell] = []
         for row in self.grid:
             cells_in_square += row
         return cells_in_square
@@ -147,7 +156,7 @@ class Square(SquareInterface):
     #     return cells_in_square
 
     def get_empty_cells(self) -> list:
-        cells_in_square = []
+        cells_in_square: list[Cell] = []
         for row in self.grid:
             cells_in_square += row
         return [cell for cell in cells_in_square if cell.is_empty()]
@@ -156,7 +165,13 @@ class Square(SquareInterface):
         return [cell.get_value() for cell in self.flatten() if cell.is_marked()]
 
     def get_other_empty_cells_in_square(self, cells_to_exclude: list):
-        return CellGroup({cell for cell in self.flatten() if cell.is_empty() and cell not in cells_to_exclude})
+        return CellGroup(
+            {
+                cell
+                for cell in self.flatten()
+                if cell.is_empty() and cell not in cells_to_exclude
+            }
+        )
 
     def get_rows(self):
         return [CellGroup(set(row)) for row in self.grid]
@@ -174,28 +189,28 @@ class Square(SquareInterface):
 
 
 class Grid(GridInterface):
-
     def __init__(self, encoded_sudoku_grid) -> None:
-
-        encoded_sudoku_grid = [int(char)
-                               for char in list(encoded_sudoku_grid)[::-1]]
+        encoded_sudoku_grid = [int(char) for char in list(encoded_sudoku_grid)[::-1]]
         self.grid = [[Cell(0, 0, 0) for _ in range(9)] for _ in range(9)]
         for row in range(9):
             for column in range(9):
                 self.grid[row][column] = Cell(
-                    row, column, value=encoded_sudoku_grid.pop())
+                    row, column, value=encoded_sudoku_grid.pop()
+                )
         self.update_candidates_in_all_cells()
 
     def __eq__(self, other: GridInterface) -> bool:
         for row in range(9):
             for column in range(9):
-                if self.get_cell(row, column).get_candidates() != other.get_cell(row, column).get_candidates():
+                if (
+                    self.get_cell(row, column).get_candidates()
+                    != other.get_cell(row, column).get_candidates()
+                ):
                     return False
 
         return self.decode() == other.decode()
 
     def is_valid(self) -> bool:
-
         for row in self.get_rows():
             if not row.is_valid():
                 print("false row")
@@ -229,22 +244,29 @@ class Grid(GridInterface):
         if cell.is_marked():
             return
 
-        excluded_values_from_same_row_column_grid = set(self.get_other_cells_on_column_by_cell(cell).get_marked_values() +
-                                                        self.get_other_cells_on_row_by_cell(cell).get_marked_values() +
-                                                        self.get_other_cells_in_grid_by_cell(cell).get_marked_values())
+        excluded_values_from_same_row_column_grid = set(
+            self.get_other_cells_on_column_by_cell(cell).get_marked_values()
+            + self.get_other_cells_on_row_by_cell(cell).get_marked_values()
+            + self.get_other_cells_in_grid_by_cell(cell).get_marked_values()
+        )
         cell.set_candidates(
-            cell.get_candidates().difference(excluded_values_from_same_row_column_grid))
+            cell.get_candidates().difference(excluded_values_from_same_row_column_grid)
+        )
 
     def update_candidates_in_cell_row_column_grid(self, cell):
-        cells_to_update = set(list(self.get_other_cells_on_column_by_cell(cell).get_cells()) +
-                                   list(self.get_other_cells_on_row_by_cell(cell).get_cells()) +
-                                   list(self.get_other_cells_in_grid_by_cell(cell).get_cells()))
+        cells_to_update = set(
+            list(self.get_other_cells_on_column_by_cell(cell).get_cells())
+            + list(self.get_other_cells_on_row_by_cell(cell).get_cells())
+            + list(self.get_other_cells_in_grid_by_cell(cell).get_cells())
+        )
         candidate_to_remove = cell.get_value()
         for cell_to_update in cells_to_update:
             cell_to_update.remove_candidate(candidate_to_remove)
 
     def get_other_cells_on_row(self, row: int, col: int):
-        return CellGroup({cell for cell in self.grid[row] if cell.get_position() != (row, col)})
+        return CellGroup(
+            {cell for cell in self.grid[row] if cell.get_position() != (row, col)}
+        )
 
     def get_rows(self):
         return [CellGroup(set(row)) for row in self.grid]
@@ -260,27 +282,64 @@ class Grid(GridInterface):
         return CellGroup({cell for cell in self.grid[row] if cell.is_empty()})
 
     def get_other_cells_on_column(self, row: int, col: int):
-        return CellGroup({vector[col] for vector in self.grid if vector[col].get_position() != (row, col)})
+        return CellGroup(
+            {
+                vector[col]
+                for vector in self.grid
+                if vector[col].get_position() != (row, col)
+            }
+        )
 
     # def get_cells_on_column(self, col: int):
     #     return CellGroup([row[col] for row in self.grid if row[col].get_col() == col])
 
     def get_empty_cells_on_col(self, col: int):
-        return CellGroup({row[col] for row in self.grid if row[col].get_col() == col and row[col].is_empty()})
+        return CellGroup(
+            {
+                row[col]
+                for row in self.grid
+                if row[col].get_col() == col and row[col].is_empty()
+            }
+        )
 
     def get_other_cells_in_grid(self, row: int, col: int):
-        return CellGroup({cell for cell in self.get_square(
-            row, col).flatten() if cell.get_position() != (row, col)})
+        return CellGroup(
+            {
+                cell
+                for cell in self.get_square(row, col).flatten()
+                if cell.get_position() != (row, col)
+            }
+        )
 
     def get_other_cells_on_row_by_cell(self, main_cell: Cell):
-        return CellGroup({cell for cell in self.grid[main_cell.get_row()] if cell.get_position() != main_cell.get_position()})
+        return CellGroup(
+            {
+                cell
+                for cell in self.grid[main_cell.get_row()]
+                if cell.get_position() != main_cell.get_position()
+            }
+        )
 
     def get_other_cells_on_column_by_cell(self, main_cell: Cell):
-        return CellGroup({vector[main_cell.get_col()] for vector in self.grid if vector[main_cell.get_col()].get_position() != main_cell.get_position()})
+        return CellGroup(
+            {
+                vector[main_cell.get_col()]
+                for vector in self.grid
+                if vector[main_cell.get_col()].get_position()
+                != main_cell.get_position()
+            }
+        )
 
     def get_other_cells_in_grid_by_cell(self, main_cell: Cell):
-        return CellGroup({cell for cell in self.get_square(
-            main_cell.get_row(), main_cell.get_col()).flatten() if cell.get_position() != main_cell.get_position()})
+        return CellGroup(
+            {
+                cell
+                for cell in self.get_square(
+                    main_cell.get_row(), main_cell.get_col()
+                ).flatten()
+                if cell.get_position() != main_cell.get_position()
+            }
+        )
 
     def get_cell(self, row: int, col: int) -> CellInterface:
         return self.grid[row][col]
@@ -292,27 +351,36 @@ class Grid(GridInterface):
     #     return [cell for cell in self.get_all_cells() if cell.is_empty()]
 
     def get_square(self, row: int, col: int) -> Square:
-        return Square(square=[rows[col//3*3: col//3*3+3] for rows in self.grid[row//3*3: row//3*3+3]])
+        return Square(
+            square=[
+                rows[col // 3 * 3 : col // 3 * 3 + 3]
+                for rows in self.grid[row // 3 * 3 : row // 3 * 3 + 3]
+            ]
+        )
 
     def get_all_squares(self) -> list[Square]:
-        return [self.get_square(row, col) for row in range(0, 9, 3) for col in range(0, 9, 3)]
+        return [
+            self.get_square(row, col)
+            for row in range(0, 9, 3)
+            for col in range(0, 9, 3)
+        ]
 
     def set_cell_value(self, cell: Cell, value: int):
         cell.set_value(value)
         self.update_candidates_in_cell_row_column_grid(cell)
 
     def show(self) -> None:
-        grid_draw = '-'*25
-        reversed_values = list(self.decode().replace('0', ' '))[:: -1]
+        grid_draw = "-" * 25
+        reversed_values = list(self.decode().replace("0", " "))[::-1]
         for _ in range(3):  # 3 rows of squares
             for _ in range(3):  # 3 rows
-                grid_draw += '\n| '
+                grid_draw += "\n| "
                 for _ in range(3):  # 3 horizontal squares
                     for _ in range(3):  # 3 inside square
                         grid_draw += reversed_values.pop()
-                        grid_draw += ' '
-                    grid_draw += '| '
-            grid_draw += '\n' + '-'*25
+                        grid_draw += " "
+                    grid_draw += "| "
+            grid_draw += "\n" + "-" * 25
         print(grid_draw)
 
     def decode(self) -> str:

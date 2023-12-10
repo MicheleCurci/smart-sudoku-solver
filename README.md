@@ -26,3 +26,8 @@ python -m unittest discover -s ../test
 cd src
 coverage run -m unittest discover -s ../test
 coverage report -m
+
+
+# Black formatting
+cd src
+black --config ..\pyproject.toml .
