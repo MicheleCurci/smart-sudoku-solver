@@ -30,4 +30,4 @@ coverage report -m
 
 # Black formatting
 cd src
-black --config ..\pyproject.toml .
+black --config ..\pyproject.toml . ../test
