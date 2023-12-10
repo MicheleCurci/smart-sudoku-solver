@@ -17,32 +17,33 @@ class CyclicPipeline:
         self.jobs.append(job)
         self.head = max(self.head, 0)
 
-    def start(self, input: A, stop_condition: Callable):
+    def start(self, input: A, stop_condition: Callable) -> A:
         last_job_index = len(self.jobs) - 1
-
         iteration_input = None
         num_iterations = 0
+        output = input
 
         while num_iterations < self.max_iterations:
             if self.head == 0:
                 iteration_input = deepcopy(input)
 
-            output = self._run_next_job(input)
+            output: A = self._run_next_job(input)
             num_iterations += 1
 
             # compare if input has changed after a complete pipeline iteration
             if self.head == last_job_index and iteration_input == output:
                 print("> CyclicPipeline: input unchanged after completed iteration")
                 print("> #Iterations: " + str(num_iterations))
-                return output  # input unchanged after iteration
+                break  # input unchanged after iteration
 
             if stop_condition(output):
                 print("> CyclicPipeline: stop condition verified")
                 print("> #Iterations: " + str(num_iterations))
-                return output  # stop condition verified
+                break  # stop condition verified
 
             self._increment_head()
-        return
+
+        return output
 
     # TODO: print -> abstract methods with custom messages
 
