@@ -14,6 +14,8 @@ deactivate
 
 Glossary:
 rcs = row or column or square
+square = 3v3
+grid = 9x9
 
 # Run tests:
 cd src
@@ -21,5 +23,11 @@ python -m unittest discover -s ../test
 
 
 # Coverage:
+cd src
 coverage run -m unittest discover -s ../test
 coverage report -m
+
+
+# Black formatting
+cd src
+black --config ..\pyproject.toml . ../test
