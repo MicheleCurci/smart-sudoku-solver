@@ -8,7 +8,7 @@ class CellInterface(ABC):
         pass
 
     @abstractmethod
-    def set_value(self, value:   int) -> None:
+    def set_value(self, value: int) -> None:
         pass
 
     # @abstractmethod
