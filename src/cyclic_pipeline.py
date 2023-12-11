@@ -1,4 +1,4 @@
-from job_interface import JobInterface
+from src.job_interface import JobInterface
 from typing import TypeVar, Callable
 from copy import deepcopy
 

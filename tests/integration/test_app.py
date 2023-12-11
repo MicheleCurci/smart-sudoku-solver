@@ -1,6 +1,6 @@
 from unittest import TestCase
-from cyclic_pipeline import CyclicPipeline
-from sudoku_techniques import (
+from src.cyclic_pipeline import CyclicPipeline
+from src.sudoku_techniques import (
     SingleCandidateTechnique,
     IsolateCandidatesInSquareTechnique,
     IsolateCandidatesInRowsAndColumnsTechnique,
@@ -8,7 +8,7 @@ from sudoku_techniques import (
     DoubleCoupleAlignedTechnique,
     ThreeCandidatesInThreeCellsTechnique,
 )
-from sudoku_entities import Grid
+from src.sudoku_entities import Grid
 
 
 class TestCalculator(TestCase):

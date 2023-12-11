@@ -18,16 +18,13 @@ square = 3v3
 grid = 9x9
 
 # Run tests:
-cd src
-python -m unittest discover -s ../test
+python -m unittest discover -s tests
 
 
 # Coverage:
-cd src
-coverage run -m unittest discover -s ../test
+coverage run -m unittest discover -s tests
 coverage report -m
 
 
 # Black formatting
-cd src
-black --config ..\pyproject.toml . ../test
+black --config pyproject.toml src tests
