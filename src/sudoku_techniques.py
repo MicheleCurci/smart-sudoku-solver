@@ -1,6 +1,6 @@
-from job_interface import JobInterface
-from sudoku_interfaces import GridInterface
-from sudoku_entities import CellGroup
+from src.job_interface import JobInterface
+from src.sudoku_interfaces import GridInterface
+from src.sudoku_entities import CellGroup
 
 
 # class Result():

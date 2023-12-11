@@ -1,5 +1,5 @@
 from __future__ import annotations
-from sudoku_interfaces import (
+from src.sudoku_interfaces import (
     GridInterface,
     CellGroupInterface,
     CellInterface,

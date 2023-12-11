@@ -1,6 +1,6 @@
 from cyclic_pipeline import CyclicPipeline
-from sudoku_entities import Grid
-from sudoku_techniques import (
+from src.sudoku_entities import Grid
+from src.sudoku_techniques import (
     SingleCandidateTechnique,
     IsolateCandidatesInSquareTechnique,
     IsolateCandidatesInRowsAndColumnsTechnique,

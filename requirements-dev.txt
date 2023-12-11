@@ -1,5 +1,5 @@
 -r requirements.txt
-pycodestyle
-pylint
-vulture
+#pycodestyle
+#pylint
+#vulture
 black
