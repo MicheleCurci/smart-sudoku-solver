@@ -1,10 +1,10 @@
-from src.job_interface import JobInterface
-from src.sudoku_interfaces import GridInterface
+from src.job_interface import AbstractJob
+from src.abstract_sudoku_classes import AbstractGrid
 from src.sudoku_entities import CellGroup
 
 
 # class Result():
-#     def __init__(self, grid: GridInterface, has_marked_in_last_run: bool) -> None:
+#     def __init__(self, grid: AbstractGrid, has_marked_in_last_run: bool) -> None:
 #         self.grid = grid
 #         self.has_marked_in_last_run = has_marked_in_last_run
 
@@ -14,11 +14,11 @@ from src.sudoku_entities import CellGroup
 # - in row
 # - in column
 # - in grid
-class SingleCandidateTechnique(JobInterface):
+class SingleCandidateTechnique(AbstractJob):
     def __init__(self) -> None:
         pass
 
-    def run(self, grid: GridInterface) -> GridInterface:
+    def run(self, grid: AbstractGrid) -> AbstractGrid:
         # mark cells with unique candidates
         # TODO: replace with get_all_cells()
         for row in range(0, 9):
@@ -57,12 +57,11 @@ class SingleCandidateTechnique(JobInterface):
 
 # Tecnique: Stucked candidate type 1
 
-
-class IsolateCandidatesInSquareTechnique(JobInterface):
+class IsolateCandidatesInSquareTechnique(AbstractJob):
     def __init__(self) -> None:
         pass
 
-    def run(self, grid: GridInterface) -> GridInterface:
+    def run(self, grid: AbstractGrid) -> AbstractGrid:
         for square in grid.get_all_squares():
             for row in square.get_rows():
                 empty_cells_in_subrow = CellGroup(
@@ -132,11 +131,11 @@ class IsolateCandidatesInSquareTechnique(JobInterface):
         return grid
 
 
-class IsolateCandidatesInRowsAndColumnsTechnique(JobInterface):
+class IsolateCandidatesInRowsAndColumnsTechnique(AbstractJob):
     def __init__(self) -> None:
         pass
 
-    def run(self, grid: GridInterface) -> GridInterface:
+    def run(self, grid: AbstractGrid) -> AbstractGrid:
         for square in grid.get_all_squares():
             for row in square.get_rows():
                 empty_cells_in_subrow = CellGroup(
@@ -206,11 +205,11 @@ class IsolateCandidatesInRowsAndColumnsTechnique(JobInterface):
         return grid
 
 
-class DoubleCoupleTechnique(JobInterface):
+class DoubleCoupleTechnique(AbstractJob):
     def __init__(self) -> None:
         pass
 
-    def run(self, grid: GridInterface) -> GridInterface:
+    def run(self, grid: AbstractGrid) -> AbstractGrid:
         for square in grid.get_all_squares():
             cells_with_2_candidates = [
                 cell
@@ -235,11 +234,11 @@ class DoubleCoupleTechnique(JobInterface):
 
 
 # USELESS???
-class DoubleCoupleAlignedTechnique(JobInterface):
+class DoubleCoupleAlignedTechnique(AbstractJob):
     def __init__(self) -> None:
         pass
 
-    def run(self, grid: GridInterface) -> GridInterface:
+    def run(self, grid: AbstractGrid) -> AbstractGrid:
         for row in grid.get_rows():
             cells_with_2_candidates = [
                 cell
@@ -284,11 +283,11 @@ class DoubleCoupleAlignedTechnique(JobInterface):
         return grid
 
 
-class ThreeCandidatesInThreeCellsTechnique(JobInterface):
+class ThreeCandidatesInThreeCellsTechnique(AbstractJob):
     def __init__(self) -> None:
         pass
 
-    def run(self, grid: GridInterface) -> GridInterface:
+    def run(self, grid: AbstractGrid) -> AbstractGrid:
         rcs_groups = (grid.get_rows(), grid.get_columns(), grid.get_all_squares())
 
         for rcs_group in rcs_groups:

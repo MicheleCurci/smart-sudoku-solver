@@ -2,7 +2,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 
 
-class CellInterface(ABC):
+class AbstractCell(ABC):
     @abstractmethod
     def get_value(self) -> int:
         pass
@@ -10,10 +10,6 @@ class CellInterface(ABC):
     @abstractmethod
     def set_value(self, value: int) -> None:
         pass
-
-    # @abstractmethod
-    # def is_value_set(self) -> bool:
-    #     pass
 
     @abstractmethod
     def get_candidates(self) -> set[int]:
@@ -52,9 +48,9 @@ class CellInterface(ABC):
         pass
 
 
-class CellGroupInterface(ABC):
+class AbstractCellGroup(ABC):
     @abstractmethod
-    def get_cells(self) -> set[CellInterface]:
+    def get_cells(self) -> set[AbstractCell]:
         pass
 
     @abstractmethod
@@ -66,43 +62,43 @@ class CellGroupInterface(ABC):
         pass
 
     @abstractmethod
-    def get_empty_cells(self) -> set[CellInterface]:
+    def get_empty_cells(self) -> set[AbstractCell]:
         pass
 
     @abstractmethod
-    def difference(self, other: CellGroupInterface) -> CellGroupInterface:
+    def difference(self, other: AbstractCellGroup) -> AbstractCellGroup:
         pass
 
 
-class SquareInterface(ABC):
+class AbstractSquare(ABC):
     @abstractmethod
     def is_valid(self) -> bool:
         pass
 
     @abstractmethod
-    def flatten(self) -> set[CellInterface]:
+    def flatten(self) -> set[AbstractCell]:
         pass
 
     @abstractmethod
-    def get_rows(self) -> list[CellGroupInterface]:
+    def get_rows(self) -> list[AbstractCellGroup]:
         pass
 
     @abstractmethod
-    def get_columns(self) -> list[CellGroupInterface]:
+    def get_columns(self) -> list[AbstractCellGroup]:
         pass
 
     @abstractmethod
-    def get_empty_cells(self) -> set[CellInterface]:
+    def get_empty_cells(self) -> set[AbstractCell]:
         pass
 
     @abstractmethod
     def get_other_empty_cells_in_square(
-        self, main_cells: set[CellInterface]
-    ) -> CellGroupInterface:
+        self, main_cells: set[AbstractCell]
+    ) -> AbstractCellGroup:
         pass
 
 
-class GridInterface(ABC):
+class AbstractGrid(ABC):
     @abstractmethod
     def __eq__(self, other):
         pass
@@ -115,64 +111,48 @@ class GridInterface(ABC):
     def is_filled(self) -> bool:
         pass
 
-    # @abstractmethod
-    # def get_row_ith(self, row: int) -> CellGroupInterface:
-    #     pass
-
-    # @abstractmethod
-    # def get_col_ith(self, col: int) -> CellGroupInterface:
-    #     pass
-
     @abstractmethod
-    def get_cell(self, row: int, col: int) -> CellInterface:
+    def get_cell(self, row: int, col: int) -> AbstractCell:
         pass
 
     @abstractmethod
-    def get_rows(self) -> list[CellGroupInterface]:
+    def get_rows(self) -> list[AbstractCellGroup]:
         pass
 
     @abstractmethod
-    def get_columns(self) -> list[CellGroupInterface]:
+    def get_columns(self) -> list[AbstractCellGroup]:
         pass
 
     @abstractmethod
-    def set_cell_value(self, cell: CellInterface, value: int) -> None:
+    def set_cell_value(self, cell: AbstractCell, value: int) -> None:
         pass
 
     @abstractmethod
-    def get_other_cells_on_row(self, row: int, col: int) -> CellGroupInterface:
+    def get_other_cells_on_row(self, row: int, col: int) -> AbstractCellGroup:
         pass
 
     @abstractmethod
-    def get_other_cells_on_column(self, row: int, col: int) -> CellGroupInterface:
+    def get_other_cells_on_column(self, row: int, col: int) -> AbstractCellGroup:
         pass
 
     @abstractmethod
-    def get_other_cells_in_grid(self, row: int, col: int) -> CellGroupInterface:
+    def get_other_cells_in_grid(self, row: int, col: int) -> AbstractCellGroup:
         pass
 
     @abstractmethod
-    def get_empty_cells_on_row(self, row: int) -> CellGroupInterface:
+    def get_empty_cells_on_row(self, row: int) -> AbstractCellGroup:
         pass
 
     @abstractmethod
-    def get_empty_cells_on_col(self, col: int) -> CellGroupInterface:
-        pass
-
-    # @abstractmethod
-    # def add_cell_candidate(self, cell: CellInterface, candidate: int):
-    #     pass
-
-    # @abstractmethod
-    # def remove_cell_candidate(self, cell: CellInterface, candidate: int):
-    #     pass
-
-    @abstractmethod
-    def get_all_squares(self) -> list[SquareInterface]:
+    def get_empty_cells_on_col(self, col: int) -> AbstractCellGroup:
         pass
 
     @abstractmethod
-    def get_square(self, row: int, col: int) -> SquareInterface:
+    def get_all_squares(self) -> list[AbstractSquare]:
+        pass
+
+    @abstractmethod
+    def get_square(self, row: int, col: int) -> AbstractSquare:
         pass
 
     @abstractmethod
@@ -180,5 +160,5 @@ class GridInterface(ABC):
         pass
 
     @abstractmethod
-    def decode(self) -> str:
+    def encode(self) -> str:
         pass

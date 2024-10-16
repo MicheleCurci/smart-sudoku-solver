@@ -1,13 +1,13 @@
 from __future__ import annotations
-from src.sudoku_interfaces import (
-    GridInterface,
-    CellGroupInterface,
-    CellInterface,
-    SquareInterface,
+from src.abstract_sudoku_classes import (
+    AbstractGrid,
+    AbstractCellGroup,
+    AbstractCell,
+    AbstractSquare,
 )
 
 
-class Cell(CellInterface):
+class Cell(AbstractCell):
     def __init__(
         self,
         row: int,
@@ -70,7 +70,7 @@ class Cell(CellInterface):
         self.candidates = self.candidates.difference(candidates)
 
 
-class CellGroup(CellGroupInterface):
+class CellGroup(AbstractCellGroup):
     def __init__(self, cells: set) -> None:
         self.cells = set(cells)
 
@@ -87,7 +87,7 @@ class CellGroup(CellGroupInterface):
         return len(self.cells) == 0
 
     # return random cell
-    def get_cell(self) -> CellInterface:
+    def get_cell(self) -> AbstractCell:
         return list(self.cells)[0]
 
     def get_marked_values(self):
@@ -121,19 +121,19 @@ class CellGroup(CellGroupInterface):
     #             return True
     #     return False
 
-    # def union(self, other: CellGroupInterface):
+    # def union(self, other: AbstractCellGroup):
     #     tt = other.get_candidates_union()
     #     return CellGroup(self.cells.union(tt))
 
-    def difference(self, other: CellGroupInterface):
+    def difference(self, other: AbstractCellGroup):
         return CellGroup(self.get_cells().difference(other.get_cells()))
 
 
-class Square(SquareInterface):
+class Square(AbstractSquare):
     def __init__(self, square: list[list[Cell]]) -> None:
         self.grid = square
 
-    # def get_cell(self, row: int, col: int) -> CellInterface:
+    # def get_cell(self, row: int, col: int) -> AbstractCell:
     #     return self.grid[row][col]
 
     def is_valid(self) -> bool:
@@ -188,9 +188,16 @@ class Square(SquareInterface):
     #     return [CellGroup(column) for column in transposed_grid]
 
 
-class Grid(GridInterface):
+class Grid(AbstractGrid):
     def __init__(self, encoded_sudoku_grid) -> None:
-        encoded_sudoku_grid = [int(char) for char in list(encoded_sudoku_grid)[::-1]]
+        if isinstance(encoded_sudoku_grid, str):
+            encoded_sudoku_grid = [
+                int(char) for char in list(encoded_sudoku_grid)[::-1]
+            ]
+        elif isinstance(encoded_sudoku_grid, list):
+            encoded_sudoku_grid = [
+                int(value) for chunk in encoded_sudoku_grid for value in chunk
+            ][::-1]
         self.grid = [[Cell(0, 0, 0) for _ in range(9)] for _ in range(9)]
         for row in range(9):
             for column in range(9):
@@ -199,7 +206,7 @@ class Grid(GridInterface):
                 )
         self.update_candidates_in_all_cells()
 
-    def __eq__(self, other: GridInterface) -> bool:
+    def __eq__(self, other: AbstractGrid) -> bool:
         for row in range(9):
             for column in range(9):
                 if (
@@ -208,22 +215,19 @@ class Grid(GridInterface):
                 ):
                     return False
 
-        return self.decode() == other.decode()
+        return self.encode() == other.encode()
 
     def is_valid(self) -> bool:
         for row in self.get_rows():
             if not row.is_valid():
-                print("false row")
                 return False
 
         for col in self.get_columns():
             if not col.is_valid():
-                print("false col")
                 return False
 
         for square in self.get_all_squares():
             if not square.is_valid():
-                print("false square")
                 return False
 
         return True
@@ -341,7 +345,7 @@ class Grid(GridInterface):
             }
         )
 
-    def get_cell(self, row: int, col: int) -> CellInterface:
+    def get_cell(self, row: int, col: int) -> AbstractCell:
         return self.grid[row][col]
 
     def get_all_cells(self) -> list:
@@ -371,7 +375,7 @@ class Grid(GridInterface):
 
     def show(self) -> None:
         grid_draw = "-" * 25
-        reversed_values = list(self.decode().replace("0", " "))[::-1]
+        reversed_values = list(self.encode().replace("0", " "))[::-1]
         for _ in range(3):  # 3 rows of squares
             for _ in range(3):  # 3 rows
                 grid_draw += "\n| "
@@ -383,9 +387,9 @@ class Grid(GridInterface):
             grid_draw += "\n" + "-" * 25
         print(grid_draw)
 
-    def decode(self) -> str:
-        decoded_grid = ""
+    def encode(self) -> str:
+        encoded_grid = ""
         for row in range(9):
             for column in range(9):
-                decoded_grid += str(self.get_cell(row, column).get_value())
-        return decoded_grid
+                encoded_grid += str(self.get_cell(row, column).get_value())
+        return encoded_grid
