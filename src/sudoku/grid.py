@@ -1,8 +1,10 @@
 from typing import Self
-from sudoku.cell import Cell
-from sudoku.cells_set import CellsSet
+from src.sudoku.cell import Cell
+from src.sudoku.cells_set import CellsSet
+from src.sudoku_entities import Square
 
-class Grid:
+
+class Grid():
     def __init__(self, encoded_sudoku_grid) -> None:
         if isinstance(encoded_sudoku_grid, str):
             encoded_sudoku_grid = [
@@ -124,7 +126,7 @@ class Grid:
         return CellsSet(
             {
                 cell
-                for cell in self.get_square(row, col)
+                for cell in self.get_square(row, col).flatten()
                 if cell.get_position() != (row, col)
             }
         )
@@ -154,7 +156,7 @@ class Grid:
                 cell
                 for cell in self.get_square(
                     main_cell.get_row(), main_cell.get_col()
-                )
+                ).flatten()
                 if cell.get_position() != main_cell.get_position()
             }
         )
@@ -168,14 +170,15 @@ class Grid:
     # def get_all_unmarked_cells(self) -> list:
     #     return [cell for cell in self.get_all_cells() if cell.is_empty()]
 
-    def get_square(self, row: int, col: int) -> CellsSet:
-        cells = [self.get_cell(row_idx, col_idx)
-        for row_idx in range(row // 3 * 3, row // 3 * 3 + 3)
-            for col_idx in range(col // 3 * 3, col // 3 * 3 + 3)
-        ]
-        return CellsSet(cells)
+    def get_square(self, row: int, col: int) -> Square:
+        return Square(
+            square=[
+                rows[col // 3 * 3 : col // 3 * 3 + 3]
+                for rows in self.grid[row // 3 * 3 : row // 3 * 3 + 3]
+            ]
+        )
 
-    def get_all_squares(self) -> list[CellsSet]:
+    def get_all_squares(self) -> list[Square]:
         return [
             self.get_square(row, col)
             for row in range(0, 9, 3)

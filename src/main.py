@@ -1,5 +1,5 @@
 from src.pipeline.cyclic_pipeline import CyclicPipeline
-from src.sudoku_entities import Grid
+from src.sudoku.grid import Grid
 from src.sudoku_techniques import (
     SingleCandidateTechnique,
     IsolateCandidatesInSquareTechnique,

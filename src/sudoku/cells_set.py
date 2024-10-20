@@ -1,6 +1,6 @@
 import itertools
 from typing import Self
-from sudoku.cell import Cell
+from src.sudoku.cell import Cell
 
 
 class CellsSet:
