@@ -1,74 +1,8 @@
-from __future__ import annotations
-from src.abstract_sudoku_classes import (
-    AbstractGrid,
-    AbstractCell,
-    AbstractSquare,
-)
-from src.sudoku.cell import Cell
-from src.sudoku.cells_set import CellsSet
+from typing import Self
+from sudoku.cell import Cell
+from sudoku.cells_set import CellsSet
 
-
-
-class Square(AbstractSquare):
-    def __init__(self, square: list[list[Cell]]) -> None:
-        self.grid = square
-
-    # def get_cell(self, row: int, col: int) -> AbstractCell:
-    #     return self.grid[row][col]
-
-    def is_valid(self) -> bool:
-        return set(self.get_marked_values()) == set(range(1, 10))
-
-    # def is_filled(self) -> bool:
-    #     values = [cell.get_value() for cell in self.flatten()]
-    #     return values.sort() == list(range(1, 10))
-
-    def flatten(self) -> list[Cell]:
-        cells_in_square: list[Cell] = []
-        for row in self.grid:
-            cells_in_square += row
-        return cells_in_square
-
-    # def get_all_cells(self) -> list:
-    #     cells_in_square = []
-    #     for row in self.grid:
-    #         cells_in_square += row
-    #     return cells_in_square
-
-    def get_empty_cells(self) -> list:
-        cells_in_square: list[Cell] = []
-        for row in self.grid:
-            cells_in_square += row
-        return [cell for cell in cells_in_square if cell.is_empty()]
-
-    def get_marked_values(self):
-        return [cell.get_value() for cell in self.flatten() if cell.is_marked()]
-
-    def get_other_empty_cells_in_square(self, cells_to_exclude: list):
-        return CellsSet(
-            {
-                cell
-                for cell in self.flatten()
-                if cell.is_empty() and cell not in cells_to_exclude
-            }
-        )
-
-    def get_rows(self):
-        return [CellsSet(set(row)) for row in self.grid]
-
-    def get_columns(self):
-        transposed_grid = list(zip(*self.grid))
-        return [CellsSet(column) for column in transposed_grid]
-
-    # def get_empty_rows(self):
-    #     return [CellsSet(row) for row in self.grid]
-
-    # def get_empty_cells_on_columns(self):
-    #     transposed_grid = list(zip(*self.grid))
-    #     return [CellsSet(column) for column in transposed_grid]
-
-
-class Grid(AbstractGrid):
+class Grid:
     def __init__(self, encoded_sudoku_grid) -> None:
         if isinstance(encoded_sudoku_grid, str):
             encoded_sudoku_grid = [
@@ -86,7 +20,7 @@ class Grid(AbstractGrid):
                 )
         self.update_candidates_in_all_cells()
 
-    def __eq__(self, other: AbstractGrid) -> bool:
+    def __eq__(self, other: Self) -> bool:
         for row in range(9):
             for column in range(9):
                 if (
@@ -190,7 +124,7 @@ class Grid(AbstractGrid):
         return CellsSet(
             {
                 cell
-                for cell in self.get_square(row, col).flatten()
+                for cell in self.get_square(row, col)
                 if cell.get_position() != (row, col)
             }
         )
@@ -220,7 +154,7 @@ class Grid(AbstractGrid):
                 cell
                 for cell in self.get_square(
                     main_cell.get_row(), main_cell.get_col()
-                ).flatten()
+                )
                 if cell.get_position() != main_cell.get_position()
             }
         )
@@ -234,15 +168,14 @@ class Grid(AbstractGrid):
     # def get_all_unmarked_cells(self) -> list:
     #     return [cell for cell in self.get_all_cells() if cell.is_empty()]
 
-    def get_square(self, row: int, col: int) -> Square:
-        return Square(
-            square=[
-                rows[col // 3 * 3 : col // 3 * 3 + 3]
-                for rows in self.grid[row // 3 * 3 : row // 3 * 3 + 3]
-            ]
-        )
+    def get_square(self, row: int, col: int) -> CellsSet:
+        cells = [self.get_cell(row_idx, col_idx)
+        for row_idx in range(row // 3 * 3, row // 3 * 3 + 3)
+            for col_idx in range(col // 3 * 3, col // 3 * 3 + 3)
+        ]
+        return CellsSet(cells)
 
-    def get_all_squares(self) -> list[Square]:
+    def get_all_squares(self) -> list[CellsSet]:
         return [
             self.get_square(row, col)
             for row in range(0, 9, 3)

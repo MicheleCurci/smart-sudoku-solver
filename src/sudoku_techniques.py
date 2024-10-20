@@ -1,10 +1,10 @@
-from src.job_interface import AbstractJob
-from src.abstract_sudoku_classes import AbstractGrid
-from src.sudoku_entities import CellGroup
+from src.pipeline.abstract_job import AbstractJob
+from src.sudoku.grid import Grid
+from src.sudoku.cells_set import CellsSet
 
 
 # class Result():
-#     def __init__(self, grid: AbstractGrid, has_marked_in_last_run: bool) -> None:
+#     def __init__(self, grid: Grid, has_marked_in_last_run: bool) -> None:
 #         self.grid = grid
 #         self.has_marked_in_last_run = has_marked_in_last_run
 
@@ -18,7 +18,7 @@ class SingleCandidateTechnique(AbstractJob):
     def __init__(self) -> None:
         pass
 
-    def run(self, grid: AbstractGrid) -> AbstractGrid:
+    def run(self, grid: Grid) -> Grid:
         # mark cells with unique candidates
         # TODO: replace with get_all_cells()
         for row in range(0, 9):
@@ -61,10 +61,10 @@ class IsolateCandidatesInSquareTechnique(AbstractJob):
     def __init__(self) -> None:
         pass
 
-    def run(self, grid: AbstractGrid) -> AbstractGrid:
+    def run(self, grid: Grid) -> Grid:
         for square in grid.get_all_squares():
             for row in square.get_rows():
-                empty_cells_in_subrow = CellGroup(
+                empty_cells_in_subrow = CellsSet(
                     {cell for cell in row.get_cells() if cell.is_empty()}
                 )
 
@@ -95,7 +95,7 @@ class IsolateCandidatesInSquareTechnique(AbstractJob):
 
             # same logic on columns
             for column in square.get_columns():
-                empty_cells_in_subcolumn = CellGroup(
+                empty_cells_in_subcolumn = CellsSet(
                     {cell for cell in column.get_cells() if cell.is_empty()}
                 )
 
@@ -112,7 +112,7 @@ class IsolateCandidatesInSquareTechnique(AbstractJob):
 
                 unique_candidates_in_subcol = (
                     empty_cells_in_subcolumn.get_candidates_union().difference(
-                        CellGroup(
+                        CellsSet(
                             empty_cells_on_same_column_in_other_squares.get_cells()
                         ).get_candidates_union()
                     )
@@ -135,10 +135,10 @@ class IsolateCandidatesInRowsAndColumnsTechnique(AbstractJob):
     def __init__(self) -> None:
         pass
 
-    def run(self, grid: AbstractGrid) -> AbstractGrid:
+    def run(self, grid: Grid) -> Grid:
         for square in grid.get_all_squares():
             for row in square.get_rows():
-                empty_cells_in_subrow = CellGroup(
+                empty_cells_in_subrow = CellsSet(
                     {cell for cell in row.get_cells() if cell.is_empty()}
                 )
 
@@ -151,7 +151,7 @@ class IsolateCandidatesInRowsAndColumnsTechnique(AbstractJob):
                     empty_cells_in_subrow.cells
                 )
 
-                empty_cells_on_same_row_in_other_squares = CellGroup(
+                empty_cells_on_same_row_in_other_squares = CellsSet(
                     grid.get_empty_cells_on_row(row_index)
                     .difference(empty_cells_in_subrow)
                     .get_cells()
@@ -171,7 +171,7 @@ class IsolateCandidatesInRowsAndColumnsTechnique(AbstractJob):
 
             # same logic on columns
             for column in square.get_columns():
-                empty_cells_in_subcol = CellGroup(
+                empty_cells_in_subcol = CellsSet(
                     {cell for cell in column.get_cells() if cell.is_empty()}
                 )
 
@@ -184,7 +184,7 @@ class IsolateCandidatesInRowsAndColumnsTechnique(AbstractJob):
                     empty_cells_in_subcol.cells
                 )
 
-                empty_cells_on_same_col_in_other_squares = CellGroup(
+                empty_cells_on_same_col_in_other_squares = CellsSet(
                     grid.get_empty_cells_on_col(col_index)
                     .difference(empty_cells_in_subcol)
                     .get_cells()
@@ -209,7 +209,7 @@ class DoubleCoupleTechnique(AbstractJob):
     def __init__(self) -> None:
         pass
 
-    def run(self, grid: AbstractGrid) -> AbstractGrid:
+    def run(self, grid: Grid) -> Grid:
         for square in grid.get_all_squares():
             cells_with_2_candidates = [
                 cell
@@ -238,7 +238,7 @@ class DoubleCoupleAlignedTechnique(AbstractJob):
     def __init__(self) -> None:
         pass
 
-    def run(self, grid: AbstractGrid) -> AbstractGrid:
+    def run(self, grid: Grid) -> Grid:
         for row in grid.get_rows():
             cells_with_2_candidates = [
                 cell
@@ -256,7 +256,7 @@ class DoubleCoupleAlignedTechnique(AbstractJob):
 
                     common_candidates = cell_1.get_candidates()
                     for cell_on_same_row in row.difference(
-                        CellGroup({cell_1, cell_2})
+                        CellsSet({cell_1, cell_2})
                     ).get_cells():
                         cell_on_same_row.remove_candidates(common_candidates)
 
@@ -277,7 +277,7 @@ class DoubleCoupleAlignedTechnique(AbstractJob):
 
                     common_candidates = cell_1.get_candidates()
                     for cell_on_same_col in col.difference(
-                        CellGroup({cell_1, cell_2})
+                        CellsSet({cell_1, cell_2})
                     ).get_cells():
                         cell_on_same_col.remove_candidates(common_candidates)
         return grid
@@ -287,7 +287,7 @@ class ThreeCandidatesInThreeCellsTechnique(AbstractJob):
     def __init__(self) -> None:
         pass
 
-    def run(self, grid: AbstractGrid) -> AbstractGrid:
+    def run(self, grid: Grid) -> Grid:
         rcs_groups = (grid.get_rows(), grid.get_columns(), grid.get_all_squares())
 
         for rcs_group in rcs_groups:
@@ -302,11 +302,11 @@ class ThreeCandidatesInThreeCellsTechnique(AbstractJob):
                             ):  # check distinct cells
                                 continue
 
-                            triple_candidates_union = CellGroup(
+                            triple_candidates_union = CellsSet(
                                 {cell_1, cell_2, cell_3}
                             ).get_candidates_union()
 
-                            candidates_in_other_cells_in_rcs = CellGroup(
+                            candidates_in_other_cells_in_rcs = CellsSet(
                                 empty_cells_in_rcs.difference({cell_1, cell_2, cell_3})
                             ).get_candidates_union()
 

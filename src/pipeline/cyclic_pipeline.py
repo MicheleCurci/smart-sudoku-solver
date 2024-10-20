@@ -1,4 +1,4 @@
-from src.job_interface import AbstractJob
+from src.pipeline.abstract_job import AbstractJob
 from typing import TypeVar, Callable
 from copy import deepcopy
 
@@ -7,6 +7,7 @@ A = TypeVar("A")
 # cyclic pipeline stops if:
 #   - stop_condition is verified
 #   - input is unchanged after an iteration
+
 
 class CyclicPipeline:
     def __init__(self, jobs: list[AbstractJob] = [], max_iterations=1000) -> None:
@@ -34,11 +35,15 @@ class CyclicPipeline:
             # Compare if input has changed after a complete pipeline iteration
             # Pipeline is stopped if input is unchanged after iteration
             if self.head == last_job_index and iteration_input == output:
-                print(f"> CyclicPipeline: input unchanged after completed iteration. {str(num_iterations)} iterations.")
+                print(
+                    f"> CyclicPipeline: input unchanged after completed iteration. {str(num_iterations)} iterations."
+                )
                 break
 
             if stop_condition(output):
-                print(f"> CyclicPipeline: stop condition verified. {str(num_iterations)} iterations.")
+                print(
+                    f"> CyclicPipeline: stop condition verified. {str(num_iterations)} iterations."
+                )
                 break
 
             self._increment_head()
