@@ -87,7 +87,7 @@ class IsolateCandidatesInSquareTechnique(AbstractJob):
                     continue
 
                 other_empty_cells_in_square = square.get_other_empty_cells_in_square(
-                    empty_cells_in_subrow.cells
+                    list(empty_cells_in_subrow.cells)
                 )
 
                 for cell in other_empty_cells_in_square.get_cells():
@@ -122,7 +122,7 @@ class IsolateCandidatesInSquareTechnique(AbstractJob):
                     continue
 
                 other_empty_cells_in_square = square.get_other_empty_cells_in_square(
-                    empty_cells_in_subcolumn.cells
+                    list(empty_cells_in_subcolumn.cells)
                 )
 
                 for cell in other_empty_cells_in_square.get_cells():
@@ -148,7 +148,7 @@ class IsolateCandidatesInRowsAndColumnsTechnique(AbstractJob):
                 row_index = empty_cells_in_subrow.get_cell().get_row()
 
                 other_empty_cells_in_square = square.get_other_empty_cells_in_square(
-                    empty_cells_in_subrow.cells
+                    list(empty_cells_in_subrow.cells)
                 )
 
                 empty_cells_on_same_row_in_other_squares = CellsSet(
@@ -181,7 +181,7 @@ class IsolateCandidatesInRowsAndColumnsTechnique(AbstractJob):
                 col_index = empty_cells_in_subcol.get_cell().get_col()
 
                 other_empty_cells_in_square = square.get_other_empty_cells_in_square(
-                    empty_cells_in_subcol.cells
+                    list(empty_cells_in_subcol.cells)
                 )
 
                 empty_cells_on_same_col_in_other_squares = CellsSet(
@@ -227,7 +227,7 @@ class DoubleCoupleTechnique(AbstractJob):
 
                     common_candidates = cell_1.get_candidates()
                     for sibling_cell in square.get_other_empty_cells_in_square(
-                        {cell_1, cell_2}
+                        [cell_1, cell_2]
                     ).get_cells():
                         sibling_cell.remove_candidates(common_candidates)
         return grid

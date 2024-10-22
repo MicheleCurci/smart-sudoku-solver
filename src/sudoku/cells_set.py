@@ -64,44 +64,36 @@ class CellsSet:
 
 
 ########## FROM SQUARE
-    
-    # def is_valid(self) -> bool:
-    # return set(self.get_marked_values()) == set(range(1, 10))
 
-    # def flatten(self) -> list[Cell]:
-    #     cells_in_square: list[Cell] = []
+    # def is_filled(self) -> bool:
+    #     values = [cell.get_value() for cell in self.flatten()]
+    #     return values.sort() == list(range(1, 10))
+
+    # TODO: remove
+    def flatten(self) -> list[Cell]:
+        return list(self.cells)
+
+    # def get_all_cells(self) -> list:
+    #     cells_in_square = []
     #     for row in self.grid:
     #         cells_in_square += row
     #     return cells_in_square
 
-    # def get_empty_cells(self) -> list:
-    #     cells_in_square: list[Cell] = []
-    #     for row in self.grid:
-    #         cells_in_square += row
-    #     return [cell for cell in cells_in_square if cell.is_empty()]
-
-    # def get_marked_values(self) -> set:
-    #     return [cell.get_value() for cell in self.flatten() if cell.is_marked()]
-
-    def get_other_empty_cells(self, cells_to_exclude: Self):
+    def get_other_empty_cells_in_square(self, cells_to_exclude: list):
         return CellsSet(
             {
                 cell
-                for cell in self.cells
+                for cell in self.flatten()
                 if cell.is_empty() and cell not in cells_to_exclude
             }
         )
 
     def get_rows(self):
-        #return [CellsSet(set(row)) for row in self.grid]
-        groups = itertools.groupby(self.cells, lambda cell: cell.get_row())
-        return [CellsSet(group) for _, group in groups]
+        return [CellsSet(set(row)) for key, row in itertools.groupby(self.cells, lambda x: x.get_row())]
 
     def get_columns(self):
-        #transposed_grid = list(zip(*self.grid))
-        #return [CellsSet(column) for column in transposed_grid]
-        groups = itertools.groupby(self.cells, lambda cell: cell.get_col())
-        return [CellsSet(group) for _, group in groups]
+        return [CellsSet(set(row)) for key, row in itertools.groupby(self.cells, lambda x: x.get_col())]
+
 
     # def get_empty_rows(self):
     #     return [CellsSet(row) for row in self.grid]
@@ -109,3 +101,4 @@ class CellsSet:
     # def get_empty_cells_on_columns(self):
     #     transposed_grid = list(zip(*self.grid))
     #     return [CellsSet(column) for column in transposed_grid]
+

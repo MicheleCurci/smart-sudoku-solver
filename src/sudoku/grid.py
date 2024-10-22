@@ -1,8 +1,6 @@
 from typing import Self
 from src.sudoku.cell import Cell
 from src.sudoku.cells_set import CellsSet
-from src.sudoku_entities import Square
-
 
 class Grid():
     def __init__(self, encoded_sudoku_grid) -> None:
@@ -167,15 +165,16 @@ class Grid():
     # def get_all_unmarked_cells(self) -> list:
     #     return [cell for cell in self.get_all_cells() if cell.is_empty()]
 
-    def get_square(self, row: int, col: int) -> Square:
-        return Square(
-            square=[
-                rows[col // 3 * 3 : col // 3 * 3 + 3]
-                for rows in self.grid[row // 3 * 3 : row // 3 * 3 + 3]
+    def get_square(self, row: int, col: int) -> CellsSet:
+        return CellsSet(
+            [
+                self.get_cell(row_idx, col_idx)
+                for row_idx in range(row // 3 * 3, row // 3 * 3 + 3)
+                for col_idx in range(col // 3 * 3, col // 3 * 3 + 3)
             ]
         )
 
-    def get_all_squares(self) -> list[Square]:
+    def get_all_squares(self) -> list[CellsSet]:
         return [
             self.get_square(row, col)
             for row in range(0, 9, 3)
