@@ -25,13 +25,10 @@ class Grid():
     def __eq__(self, other: Self) -> bool:
         for row in range(9):
             for column in range(9):
-                if (
-                    self.get_cell(row, column).get_candidates()
-                    != other.get_cell(row, column).get_candidates()
-                ):
+                if (self.get_cell(row, column).get_candidates() != other.get_cell(row, column).get_candidates()) \
+                    or (self.get_cell(row, column).get_value() != other.get_cell(row, column).get_value()):
                     return False
-
-        return self.encode() == other.encode()
+        return True
 
     def is_valid(self) -> bool:
         for row in self.get_rows():
