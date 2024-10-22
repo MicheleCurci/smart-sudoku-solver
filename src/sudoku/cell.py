@@ -17,8 +17,7 @@ class Cell:
         self.set_value(value)
 
     def __eq__(self, other: Self):
-        # TODO: compare using get_position()
-        return self.row == other.get_row() and self.column == other.get_col()
+        return self.get_position() == other.get_position()
 
     def __repr__(self):
         return "(" + str(self.row) + ", " + str(self.column) + ")"
@@ -42,7 +41,6 @@ class Cell:
         self.value = int(value)
         if self.value in range(1, 10):
             self.candidates = set()
-
 
     def is_marked(self) -> bool:
         return self.get_value() in range(1, 10)

@@ -1,6 +1,6 @@
 from typing import Self
 from src.sudoku.cell import Cell
-from src.sudoku.cells_set import CellsSet
+from src.sudoku.cells_set import CellsGroup
 
 class Grid():
     def __init__(self, encoded_sudoku_grid) -> None:
@@ -79,25 +79,25 @@ class Grid():
             cell_to_update.remove_candidate(candidate_to_remove)
 
     def get_other_cells_on_row(self, row: int, col: int):
-        return CellsSet(
+        return CellsGroup(
             {cell for cell in self.grid[row] if cell.get_position() != (row, col)}
         )
 
     def get_rows(self):
-        return [CellsSet(set(row)) for row in self.grid]
+        return [CellsGroup(set(row)) for row in self.grid]
 
     def get_columns(self):
         transposed_grid = list(zip(*self.grid))
-        return [CellsSet(column) for column in transposed_grid]
+        return [CellsGroup(column) for column in transposed_grid]
 
     # def get_cells_on_row(self, row: int):
-    #     return CellsSet(self.grid[row])
+    #     return CellsGroup(self.grid[row])
 
     def get_empty_cells_on_row(self, row: int):
-        return CellsSet({cell for cell in self.grid[row] if cell.is_empty()})
+        return CellsGroup({cell for cell in self.grid[row] if cell.is_empty()})
 
     def get_other_cells_on_column(self, row: int, col: int):
-        return CellsSet(
+        return CellsGroup(
             {
                 vector[col]
                 for vector in self.grid
@@ -105,11 +105,8 @@ class Grid():
             }
         )
 
-    # def get_cells_on_column(self, col: int):
-    #     return CellsSet([row[col] for row in self.grid if row[col].get_col() == col])
-
     def get_empty_cells_on_col(self, col: int):
-        return CellsSet(
+        return CellsGroup(
             {
                 row[col]
                 for row in self.grid
@@ -118,16 +115,16 @@ class Grid():
         )
 
     def get_other_cells_in_grid(self, row: int, col: int):
-        return CellsSet(
+        return CellsGroup(
             {
                 cell
-                for cell in self.get_square(row, col).flatten()
+                for cell in self.get_square(row, col).get_cells()
                 if cell.get_position() != (row, col)
             }
         )
 
     def get_other_cells_on_row_by_cell(self, main_cell: Cell):
-        return CellsSet(
+        return CellsGroup(
             {
                 cell
                 for cell in self.grid[main_cell.get_row()]
@@ -136,7 +133,7 @@ class Grid():
         )
 
     def get_other_cells_on_column_by_cell(self, main_cell: Cell):
-        return CellsSet(
+        return CellsGroup(
             {
                 vector[main_cell.get_col()]
                 for vector in self.grid
@@ -146,12 +143,12 @@ class Grid():
         )
 
     def get_other_cells_in_grid_by_cell(self, main_cell: Cell):
-        return CellsSet(
+        return CellsGroup(
             {
                 cell
                 for cell in self.get_square(
                     main_cell.get_row(), main_cell.get_col()
-                ).flatten()
+                ).get_cells()
                 if cell.get_position() != main_cell.get_position()
             }
         )
@@ -165,16 +162,16 @@ class Grid():
     # def get_all_unmarked_cells(self) -> list:
     #     return [cell for cell in self.get_all_cells() if cell.is_empty()]
 
-    def get_square(self, row: int, col: int) -> CellsSet:
-        return CellsSet(
-            [
+    def get_square(self, row: int, col: int) -> CellsGroup:
+        return CellsGroup(
+            {
                 self.get_cell(row_idx, col_idx)
                 for row_idx in range(row // 3 * 3, row // 3 * 3 + 3)
                 for col_idx in range(col // 3 * 3, col // 3 * 3 + 3)
-            ]
+            }
         )
 
-    def get_all_squares(self) -> list[CellsSet]:
+    def get_all_squares(self) -> list[CellsGroup]:
         return [
             self.get_square(row, col)
             for row in range(0, 9, 3)

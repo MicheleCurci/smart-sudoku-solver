@@ -1,7 +1,7 @@
 import unittest
 from src.pipeline.cyclic_pipeline import CyclicPipeline
 from src.sudoku.grid import Grid
-from src.sudoku_techniques import (
+from src.sudoku.techniques import (
     SingleCandidateTechnique,
     IsolateCandidatesInSquareTechnique,
     IsolateCandidatesInRowsAndColumnsTechnique,

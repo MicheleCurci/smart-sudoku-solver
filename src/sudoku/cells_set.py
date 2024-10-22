@@ -1,16 +1,22 @@
 import itertools
-from typing import Self
+from typing import Self, TypeAlias
 from src.sudoku.cell import Cell
 
+CellsSet: TypeAlias = set[Cell]
 
-class CellsSet:
+# A group can represent one of the following:
+# - Row
+# - Column
+# - Square (3x3)
+
+class CellsGroup:
     def __init__(self, cells) -> None:
-        self.cells = set(cells)
+        self.cells: CellsSet = set(cells)
 
     def __iter__(self):
         return iter(self.cells)
 
-    def get_cells(self) -> set[Cell]:
+    def get_cells(self) -> CellsSet:
         return self.cells
 
     def is_valid(self) -> bool:
@@ -30,75 +36,28 @@ class CellsSet:
     def get_empty_cells(self):
         return [cell for cell in self.get_cells() if cell.is_empty()]
 
-    # def get_candidates(self) -> set():
-    #     candidates = set()
-    #     for cell in self.cells:
-    #         candidates = candidates.union(cell.get_candidates())
-    #     return candidates
-
-    # def get_candidates_intersection(self) -> set():
-    #     candidates_for_each_cell = [cell.get_candidates()
-    #                                 for cell in self.cells]
-    #     if candidates_for_each_cell == []:
-    #         return set()
-    #     return set.intersection(*candidates_for_each_cell)
-
     def get_candidates_union(self) -> set[int]:
         candidates_for_each_cell = [cell.get_candidates() for cell in self.get_cells()]
         if candidates_for_each_cell == []:
             return set()
         return set.union(*candidates_for_each_cell)
 
-    # def has_candidate(self, candidate):
-    #     for cell in self.cells:
-    #         if cell.has_candidate(candidate):
-    #             return True
-    #     return False
-
-    # def union(self, other: AbstractCellsSet):
-    #     tt = other.get_candidates_union()
-    #     return CellsSet(self.cells.union(tt))
-
     def difference(self, other: Self):
-        return CellsSet(self.get_cells().difference(other.get_cells()))
+        return CellsGroup(self.get_cells().difference(other.get_cells()))
 
+    def get_rows(self):
+        return [CellsGroup(set(row)) for _, row in itertools.groupby(self.cells, lambda x: x.get_row())]
 
-########## FROM SQUARE
+    def get_columns(self):
+        return [CellsGroup(set(col)) for _, col in itertools.groupby(self.cells, lambda x: x.get_col())]
 
-    # def is_filled(self) -> bool:
-    #     values = [cell.get_value() for cell in self.flatten()]
-    #     return values.sort() == list(range(1, 10))
+#### SQUARE methods
 
-    # TODO: remove
-    def flatten(self) -> list[Cell]:
-        return list(self.cells)
-
-    # def get_all_cells(self) -> list:
-    #     cells_in_square = []
-    #     for row in self.grid:
-    #         cells_in_square += row
-    #     return cells_in_square
-
-    def get_other_empty_cells_in_square(self, cells_to_exclude: list):
-        return CellsSet(
+    def get_other_empty_cells_in_square(self, cells_to_exclude: CellsSet):
+        return CellsGroup(
             {
                 cell
-                for cell in self.flatten()
+                for cell in self.cells
                 if cell.is_empty() and cell not in cells_to_exclude
             }
         )
-
-    def get_rows(self):
-        return [CellsSet(set(row)) for key, row in itertools.groupby(self.cells, lambda x: x.get_row())]
-
-    def get_columns(self):
-        return [CellsSet(set(row)) for key, row in itertools.groupby(self.cells, lambda x: x.get_col())]
-
-
-    # def get_empty_rows(self):
-    #     return [CellsSet(row) for row in self.grid]
-
-    # def get_empty_cells_on_columns(self):
-    #     transposed_grid = list(zip(*self.grid))
-    #     return [CellsSet(column) for column in transposed_grid]
-
