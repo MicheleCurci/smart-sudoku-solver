@@ -9,6 +9,7 @@ CellsSet: TypeAlias = set[Cell]
 # - Column
 # - Square (3x3)
 
+
 class CellsGroup:
     def __init__(self, cells) -> None:
         self.cells: CellsSet = set(cells)
@@ -46,12 +47,18 @@ class CellsGroup:
         return CellsGroup(self.get_cells().difference(other.get_cells()))
 
     def get_rows(self):
-        return [CellsGroup(set(row)) for _, row in itertools.groupby(self.cells, lambda x: x.get_row())]
+        return [
+            CellsGroup(set(row))
+            for _, row in itertools.groupby(self.cells, lambda x: x.get_row())
+        ]
 
     def get_columns(self):
-        return [CellsGroup(set(col)) for _, col in itertools.groupby(self.cells, lambda x: x.get_col())]
+        return [
+            CellsGroup(set(col))
+            for _, col in itertools.groupby(self.cells, lambda x: x.get_col())
+        ]
 
-#### SQUARE methods
+    #### SQUARE methods
 
     def get_other_empty_cells_in_square(self, cells_to_exclude: CellsSet):
         return CellsGroup(

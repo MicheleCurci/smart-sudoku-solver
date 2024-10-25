@@ -59,6 +59,7 @@ def main():
         [9, 6, 1, 3, 8, 5, 7, 2, 4],
         [8, 3, 5, 2, 7, 4, 1, 9, 6],
     ]
+
     if real_solution == solution:
         print("> SUDOKU SOLVED!")
 

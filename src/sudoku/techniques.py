@@ -57,6 +57,7 @@ class SingleCandidateTechnique(AbstractJob):
 
 # Tecnique: Stucked candidate type 1
 
+
 class IsolateCandidatesInSquareTechnique(AbstractJob):
     def __init__(self) -> None:
         pass

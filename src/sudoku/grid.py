@@ -2,7 +2,8 @@ from typing import Self
 from src.sudoku.cell import Cell
 from src.sudoku.cells_set import CellsGroup
 
-class Grid():
+
+class Grid:
     def __init__(self, encoded_sudoku_grid) -> None:
         if isinstance(encoded_sudoku_grid, str):
             encoded_sudoku_grid = [
@@ -23,8 +24,13 @@ class Grid():
     def __eq__(self, other: Self) -> bool:
         for row in range(9):
             for column in range(9):
-                if (self.get_cell(row, column).get_candidates() != other.get_cell(row, column).get_candidates()) \
-                    or (self.get_cell(row, column).get_value() != other.get_cell(row, column).get_value()):
+                if (
+                    self.get_cell(row, column).get_candidates()
+                    != other.get_cell(row, column).get_candidates()
+                ) or (
+                    self.get_cell(row, column).get_value()
+                    != other.get_cell(row, column).get_value()
+                ):
                     return False
         return True
 
