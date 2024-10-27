@@ -57,6 +57,9 @@ class Grid:
 
         return True
 
+    def is_completed(self) -> bool:
+        return self.is_filled() and self.is_valid()
+
     def update_candidates_in_all_cells(self):
         for cell in self.get_all_cells():
             self.update_candidates_in_cell(cell)
